@@ -1,0 +1,1 @@
+# verixora-frontemd-monoprepo-initial
