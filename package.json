@@ -1,0 +1,51 @@
+{
+  "name": "verixora-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start:web": "ng serve web-portal",
+    "start:mobile": "ng serve mobile-app --port=4300",
+    "build:web": "ng build web-portal",
+    "build:mobile": "ng build mobile-app",
+    "build:shared": "ng build shared"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^18.2.0",
+    "@angular/common": "^18.2.0",
+    "@angular/compiler": "^18.2.0",
+    "@angular/core": "^18.2.0",
+    "@angular/forms": "^18.2.0",
+    "@angular/platform-browser": "^18.2.0",
+    "@angular/platform-browser-dynamic": "^18.2.0",
+    "@angular/router": "^18.2.0",
+    "@capacitor-community/bluetooth-le": "3.1.2",
+    "@capacitor/camera": "^5.0.0",
+    "@capacitor/ios": "^5.7.0",
+    "@ionic/angular": "^7.8.0",
+    "@ionic/angular-toolkit": "^11.0.1",
+    "@ionic/core": "^7.8.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.14.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^18.2.0",
+    "@angular/cli": "^18.2.0",
+    "@angular/compiler-cli": "^18.2.0",
+    "@capacitor/android": "^5.7.0",
+    "@capacitor/cli": "^5.7.0",
+    "@capacitor/core": "^5.7.0",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "~5.1.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "ng-packagr": "^18.2.0",
+    "typescript": "~5.4.0"
+  }
+}

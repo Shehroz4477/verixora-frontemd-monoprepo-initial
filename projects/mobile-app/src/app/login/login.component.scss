@@ -1,0 +1,107 @@
+﻿.login-content {
+  --background: #0B0C10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.login-container {
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.brand h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #007AFF;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.brand p {
+  color: #A8B2D1;
+  font-size: 14px;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.input-item {
+  --background: #1F2833;
+  --border-radius: 12px;
+  margin-bottom: 16px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-color: #2C3A4A;
+  --border-width: 1px;
+  --border-style: solid;
+}
+
+.input-item ion-label {
+  color: #A8B2D1 !important;
+  font-weight: 500;
+  font-size: 12px;
+  padding-bottom: 4px;
+}
+
+.input-item ion-input {
+  --color: #FFFFFF;
+  --placeholder-color: #6B7A8F;
+  --placeholder-opacity: 0.7;
+}
+
+.button-group {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+ion-button {
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #A8B2D1;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #007AFF;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+.message {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  background: #1F2833;
+  color: #A8B2D1;
+}
+
+.message.error {
+  background: rgba(248, 113, 113, 0.15);
+  color: #F87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}

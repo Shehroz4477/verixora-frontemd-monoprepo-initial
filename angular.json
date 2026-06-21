@@ -1,0 +1,170 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "web-portal": {
+      "projectType": "application",
+      "root": "projects/web-portal",
+      "sourceRoot": "projects/web-portal/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/web-portal",
+            "index": "projects/web-portal/src/index.html",
+            "browser": "projects/web-portal/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/web-portal/tsconfig.app.json",
+            "assets": [
+              "projects/web-portal/src/favicon.ico",
+              "projects/web-portal/src/assets"
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "projects/web-portal/src/styles.scss"
+            ],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "web-portal:build:production"
+            },
+            "development": {
+              "buildTarget": "web-portal:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "mobile-app": {
+      "projectType": "application",
+      "root": "projects/mobile-app",
+      "sourceRoot": "projects/mobile-app/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/mobile-app",
+            "index": "projects/mobile-app/src/index.html",
+            "main": "projects/mobile-app/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/mobile-app/tsconfig.app.json",
+            "assets": [
+              "projects/mobile-app/src/favicon.ico",
+              "projects/mobile-app/src/assets"
+            ],
+            "styles": [
+              "node_modules/@ionic/core/css/core.css",
+              "node_modules/@ionic/core/css/normalize.css",
+              "node_modules/@ionic/core/css/structure.css",
+              "node_modules/@ionic/core/css/typography.css",
+              "node_modules/@ionic/core/css/padding.css",
+              "node_modules/@ionic/core/css/float-elements.css",
+              "node_modules/@ionic/core/css/text-alignment.css",
+              "node_modules/@ionic/core/css/text-transformation.css",
+              "node_modules/@ionic/core/css/flex-utils.css",
+              "projects/mobile-app/src/theme/variables.scss",
+              "projects/mobile-app/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "mobile-app:build:production"
+            },
+            "development": {
+              "buildTarget": "mobile-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "shared": {
+      "projectType": "library",
+      "root": "projects/shared",
+      "sourceRoot": "projects/shared/src",
+      "prefix": "vx",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/shared/ng-package.json",
+            "tsConfig": "projects/shared/tsconfig.lib.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared/tsconfig.lib.prod.json"
+            }
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "2df828d2-37f0-4f54-9515-2047b716caa1"
+  }
+}
