@@ -1,0 +1,156 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="transparent">
+    <div class="header-left">
+      <div class="logo-container">
+        <div class="logo-icon">🔐</div>
+        <span class="brand-title">Verixora</span>
+      </div>
+    </div>
+    <div class="header-right" slot="end">
+      <div class="header-actions">
+        <ion-button fill="clear" class="action-btn hide-mobile">
+          <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" class="action-btn hide-mobile">
+          <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <div class="divider hide-mobile"></div>
+        <ion-button fill="clear" class="logout-btn" (click)="logout()">
+          <ion-icon name="power-outline" slot="icon-only" class="logout-icon"></ion-icon>
+          <span class="logout-text">Logout</span>
+        </ion-button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard-content">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your doors...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button (click)="loadDoors()">Retry</ion-button>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+      <div class="banner-content">
+        <h1 class="greeting">Good {{ greeting }} 👋</h1>
+        <p class="sub-greeting">Welcome back to your secure home</p>
+      </div>
+      <div class="banner-decoration">
+        <div class="decoration-circle"></div>
+        <div class="decoration-circle small"></div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="home-outline" class="stat-icon"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">{{ doors.length }}</span>
+          <span class="stat-label">Total Doors</span>
+        </div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="checkmark-circle-outline" class="stat-icon"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">{{ onlineCount }}</span>
+          <span class="stat-label">Online</span>
+        </div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="alert-circle-outline" class="stat-icon"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">{{ offlineCount }}</span>
+          <span class="stat-label">Offline</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Door List -->
+    <div class="door-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Your Doors</h2>
+          <span class="section-badge">{{ doors.length }} devices</span>
+        </div>
+        <ion-button fill="clear" class="view-all-btn" (click)="viewAllDoors()">
+          View All
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="door-grid">
+        <div *ngFor="let door of doors" class="door-card" [class.offline]="door.status === 'offline'" [class.locked]="door.status === 'locked'">
+          <div class="door-card-status">
+            <span class="status-dot" [class.online]="door.status === 'online'" [class.offline]="door.status === 'offline'"></span>
+            <span class="status-label">{{ door.status | titlecase }}</span>
+          </div>
+
+          <div class="door-card-body">
+            <div class="door-icon-wrapper">
+              <div class="door-icon">
+                <ion-icon [name]="door.status === 'locked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon>
+              </div>
+            </div>
+
+            <div class="door-info">
+              <h3 class="door-name">{{ door.name }}</h3>
+              <p class="door-location">
+                <ion-icon name="location-outline" class="location-icon"></ion-icon>
+                {{ door.home }}
+              </p>
+              <div class="door-meta">
+                <span class="meta-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  Last activity: {{ getLastActivity() }}
+                </span>
+              </div>
+            </div>
+
+            <div class="door-actions">
+              <ion-button
+                class="unlock-btn"
+                [disabled]="door.status === 'offline'"
+                (click)="unlockDoor(door.id)">
+                <ion-icon slot="start" name="key-outline"></ion-icon>
+                Unlock
+              </ion-button>
+              <ion-button fill="clear" class="more-btn" (click)="showDoorOptions(door)">
+                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <ion-button fill="outline" class="quick-action-btn" (click)="addDoor()">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Add New Door
+      </ion-button>
+      <ion-button fill="outline" class="quick-action-btn" (click)="viewAuditLog()">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        Audit Logs
+      </ion-button>
+    </div>
+  </ng-container>
+</ion-content>

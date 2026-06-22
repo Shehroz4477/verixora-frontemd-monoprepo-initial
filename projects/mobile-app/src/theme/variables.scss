@@ -1,16 +1,148 @@
-﻿:root {
-  --ion-background-color: #0B0C10;
-  --ion-text-color: #FFFFFF;
-  --ion-item-background: #1F2833;
-  --ion-card-background: #1F2833;
-  --ion-border-color: #2C3A4A;
-  --ion-color-primary: #007AFF;
-  --ion-color-primary-rgb: 0, 122, 255;
-  --ion-color-primary-contrast: #FFFFFF;
+﻿// ========================================
+// VERIXORA ENTERPRISE DESIGN SYSTEM
+// ========================================
+
+// Colors (unchanged)
+$color-primary: #4F6AF5;
+$color-primary-dark: #3A56D4;
+$color-primary-light: #7B92F7;
+$color-secondary: #6C63FF;
+$color-accent: #00D4FF;
+
+$color-success: #10B981;
+$color-danger: #EF4444;
+$color-warning: #F59E0B;
+$color-info: #3B82F6;
+
+$neutral-900: #0F172A;
+$neutral-800: #1E293B;
+$neutral-700: #334155;
+$neutral-600: #475569;
+$neutral-500: #64748B;
+$neutral-400: #94A3B8;
+$neutral-300: #CBD5E1;
+$neutral-200: #E2E8F0;
+$neutral-100: #F1F5F9;
+$neutral-50: #F8FAFC;
+$white: #FFFFFF;
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, $color-primary, $color-secondary);
+$gradient-accent: linear-gradient(135deg, $color-primary, $color-accent);
+
+// Responsive Font Sizes (using rem for better scaling)
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-md: 1.125rem;   // 18px
+$font-size-lg: 1.25rem;    // 20px
+$font-size-xl: 1.5rem;     // 24px
+$font-size-2xl: 1.875rem;  // 30px
+$font-size-3xl: 2.25rem;   // 36px
+
+// Font Weights
+$font-regular: 400;
+$font-medium: 500;
+$font-semibold: 600;
+$font-bold: 700;
+
+// Responsive Spacing (using rem)
+$space-1: 0.25rem;   // 4px
+$space-2: 0.5rem;    // 8px
+$space-3: 0.75rem;   // 12px
+$space-4: 1rem;      // 16px
+$space-5: 1.25rem;   // 20px
+$space-6: 1.5rem;    // 24px
+$space-8: 2rem;      // 32px
+$space-10: 2.5rem;   // 40px
+$space-12: 3rem;     // 48px
+$space-16: 4rem;     // 64px
+
+// Border Radius
+$radius-sm: 0.375rem;   // 6px
+$radius-md: 0.5rem;     // 8px
+$radius-lg: 0.75rem;    // 12px
+$radius-xl: 1rem;       // 16px
+$radius-2xl: 1.5rem;    // 24px
+$radius-full: 9999px;
+
+// Shadows
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.25);
+
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-base: 0.25s ease;
+$transition-slow: 0.5s ease;
+
+// ========================================
+// CSS Variables
+// ========================================
+:root {
+  --vx-primary: #{$color-primary};
+  --vx-primary-dark: #{$color-primary-dark};
+  --vx-primary-light: #{$color-primary-light};
+  --vx-secondary: #{$color-secondary};
+  --vx-accent: #{$color-accent};
+
+  --vx-gradient-primary: #{$gradient-primary};
+  --vx-gradient-accent: #{$gradient-accent};
+
+  --vx-success: #{$color-success};
+  --vx-danger: #{$color-danger};
+  --vx-warning: #{$color-warning};
+  --vx-info: #{$color-info};
+
+  --vx-neutral-900: #{$neutral-900};
+  --vx-neutral-800: #{$neutral-800};
+  --vx-neutral-700: #{$neutral-700};
+  --vx-neutral-600: #{$neutral-600};
+  --vx-neutral-500: #{$neutral-500};
+  --vx-neutral-400: #{$neutral-400};
+  --vx-white: #{$white};
+
+  --vx-radius-sm: #{$radius-sm};
+  --vx-radius-md: #{$radius-md};
+  --vx-radius-lg: #{$radius-lg};
+  --vx-radius-xl: #{$radius-xl};
+  --vx-radius-2xl: #{$radius-2xl};
+  --vx-radius-full: #{$radius-full};
+
+  --vx-shadow-sm: #{$shadow-sm};
+  --vx-shadow-md: #{$shadow-md};
+  --vx-shadow-lg: #{$shadow-lg};
+}
+
+// ========================================
+// Ionic Overrides
+// ========================================
+:root {
+  --ion-background-color: #{$neutral-900};
+  --ion-text-color: #{$white};
+  --ion-item-background: #{$neutral-800};
+  --ion-card-background: #{$neutral-800};
+  --ion-border-color: #{$neutral-700};
+
+  --ion-color-primary: #{$color-primary};
+  --ion-color-primary-rgb: 79, 106, 245;
+  --ion-color-primary-contrast: #{$white};
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #0066cc;
-  --ion-color-primary-tint: #1a8aff;
-  --ion-color-success: #4ADE80;
-  --ion-color-danger: #F87171;
-  --ion-font-family: 'Inter', sans-serif;
+  --ion-color-primary-shade: #{$color-primary-dark};
+  --ion-color-primary-tint: #{$color-primary-light};
+
+  --ion-color-success: #{$color-success};
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #{$white};
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+
+  --ion-color-danger: #{$color-danger};
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #{$white};
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+
+  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }

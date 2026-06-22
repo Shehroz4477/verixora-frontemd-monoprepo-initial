@@ -1,75 +1,78 @@
 <ion-content class="login-content">
   <div class="login-container">
-    <!-- Logo / Brand -->
+    <!-- Brand -->
     <div class="brand">
-      <h1>Verixora</h1>
-      <p>Smart Access Control</p>
+      <div class="brand-icon">🔐</div>
+      <h1 class="brand-title">Verixora</h1>
+      <p class="brand-subtitle">Enterprise Smart Access</p>
     </div>
 
-    <!-- Phone Input -->
-    <ion-item class="input-item">
-      <ion-label position="stacked">Phone Number</ion-label>
-      <ion-input 
-        type="tel" 
-        placeholder="+923001234567"
-        [(ngModel)]="phoneNumber"
-        name="phone"
-        required>
-      </ion-input>
-    </ion-item>
+    <!-- Login Form -->
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <ion-item class="input-item">
+          <ion-input
+            type="tel"
+            placeholder="Enter your phone number"
+            [(ngModel)]="phoneNumber"
+            name="phone"
+            required>
+          </ion-input>
+        </ion-item>
+      </div>
 
-    <!-- Password Input -->
-    <ion-item class="input-item">
-      <ion-label position="stacked">Password</ion-label>
-      <ion-input 
-        type="password" 
-        placeholder="Enter your password"
-        [(ngModel)]="password"
-        name="password"
-        required>
-      </ion-input>
-    </ion-item>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <ion-item class="input-item">
+          <ion-input
+            type="password"
+            placeholder="Enter your password"
+            [(ngModel)]="password"
+            name="password"
+            required>
+          </ion-input>
+        </ion-item>
+      </div>
 
-    <!-- OTP Input (hidden until OTP is sent) -->
-    <ion-item class="input-item" *ngIf="showOtpInput">
-      <ion-label position="stacked">OTP Code</ion-label>
-      <ion-input 
-        type="number" 
-        placeholder="Enter 6-digit OTP"
-        [(ngModel)]="otp"
-        name="otp"
-        maxlength="6">
-      </ion-input>
-    </ion-item>
+      <div class="form-group" *ngIf="showOtpInput">
+        <label class="form-label">Verification Code</label>
+        <ion-item class="input-item otp-input">
+          <ion-input
+            type="number"
+            placeholder="Enter 6-digit OTP"
+            [(ngModel)]="otp"
+            name="otp"
+            maxlength="6">
+          </ion-input>
+          <div class="otp-timer" *ngIf="otpTimer > 0">
+            {{ otpTimer }}s
+          </div>
+        </ion-item>
+      </div>
 
-    <!-- Buttons -->
-    <div class="button-group">
-      <ion-button 
-        expand="block" 
-        color="primary" 
+      <button
+        class="btn-primary"
         (click)="sendOtp()"
-        [disabled]="!phoneNumber || !password">
-        Send OTP
-      </ion-button>
+        [disabled]="!phoneNumber || !password || isLoading">
+        {{ showOtpInput ? 'Resend OTP' : 'Send OTP' }}
+      </button>
 
-      <ion-button 
-        expand="block" 
-        color="success" 
+      <button
+        class="btn-primary btn-login"
         (click)="login()"
-        [disabled]="!phoneNumber || !password || !otp"
+        [disabled]="!phoneNumber || !password || !otp || isLoading"
         *ngIf="showOtpInput">
-        Login
-      </ion-button>
-    </div>
+        Sign In
+      </button>
 
-    <!-- Register Link -->
-    <div class="register-link">
-      <p>Don't have an account? <a (click)="goToRegister()">Register</a></p>
-    </div>
+      <div class="register-link">
+        Don't have an account? <a (click)="goToRegister()">Contact Support</a>
+      </div>
 
-    <!-- Status Message -->
-    <div *ngIf="message" class="message" [class.error]="isError">
-      {{ message }}
+      <div *ngIf="message" class="message" [class.error]="isError">
+        {{ message }}
+      </div>
     </div>
   </div>
 </ion-content>
