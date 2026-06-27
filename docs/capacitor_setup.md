@@ -119,8 +119,8 @@ You need to set `ANDROID_SDK_ROOT` and `ANDROID_HOME` so the build tools can fin
 
 ### 9.1 Temporary (for current PowerShell session)
 ```powershell
-$env:ANDROID_SDK_ROOT = "C:\Users\YourUser\AppData\Local\Android\Sdk"
-$env:ANDROID_HOME = "C:\Users\YourUser\AppData\Local\Android\Sdk"
+$env:ANDROID_SDK_ROOT = "C:\Users\Shehroz4477\AppData\Local\Android\Sdk"
+$env:ANDROID_HOME = "C:\Users\Shehroz4477\AppData\Local\Android\Sdk"
 ```
 *(Replace the path with your actual SDK location.)*
 

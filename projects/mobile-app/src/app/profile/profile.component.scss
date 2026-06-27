@@ -1,0 +1,21 @@
+@import 'mixins';
+
+.back-btn {
+  --color: #{$color-primary};
+  --padding-start: $space-2;
+  --padding-end: $space-2;
+  --border-radius: #{$radius-sm};
+  &:hover {
+    --color: #{$color-primary-light};
+  }
+}
+.back-icon {
+  font-size: 24px;
+  color: $color-primary;
+}
+.toolbar-title {
+  font-size: $font-size-md;
+  font-weight: $font-semibold;
+  color: $white;
+  letter-spacing: 0.5px;
+}

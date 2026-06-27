@@ -1,0 +1,55 @@
+<ion-tabs>
+  <ion-tab-bar slot="bottom" class="custom-tab-bar">
+    <!-- Home -->
+    <ion-tab-button tab="home">
+      <ion-icon name="home-outline"></ion-icon>
+      <ion-label>Home</ion-label>
+    </ion-tab-button>
+
+    <!-- Devices -->
+    <ion-tab-button tab="devices">
+      <ion-icon name="grid-outline"></ion-icon>
+      <ion-label>Devices</ion-label>
+    </ion-tab-button>
+
+    <!-- Face Enrollment – prominent, no label -->
+    <ion-tab-button tab="face-enrollment" class="face-tab">
+      <div class="face-icon-wrapper">
+        <svg viewBox="0 0 100 100" class="tab-scanner-icon" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="scanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#4F6AF5" />
+              <stop offset="100%" stop-color="#00D4FF" />
+            </linearGradient>
+          </defs>
+          <rect x="15" y="15" width="70" height="70" rx="12" stroke="currentColor" stroke-width="2.5" fill="none"
+            opacity="0.9" />
+          <line x1="10" y1="25" x2="20" y2="25" stroke="currentColor" stroke-width="2" />
+          <line x1="10" y1="25" x2="10" y2="15" stroke="currentColor" stroke-width="2" />
+          <line x1="90" y1="25" x2="80" y2="25" stroke="currentColor" stroke-width="2" />
+          <line x1="90" y1="25" x2="90" y2="15" stroke="currentColor" stroke-width="2" />
+          <line x1="10" y1="75" x2="20" y2="75" stroke="currentColor" stroke-width="2" />
+          <line x1="10" y1="75" x2="10" y2="85" stroke="currentColor" stroke-width="2" />
+          <line x1="90" y1="75" x2="80" y2="75" stroke="currentColor" stroke-width="2" />
+          <line x1="90" y1="75" x2="90" y2="85" stroke="currentColor" stroke-width="2" />
+          <circle cx="50" cy="38" r="10" stroke="currentColor" stroke-width="2" fill="none" opacity="0.9" />
+          <path d="M 35 62 Q 50 52 65 62" stroke="currentColor" stroke-width="2" fill="none" opacity="0.9" />
+          <line x1="20" y1="50" x2="80" y2="50" stroke="url(#scanGrad)" stroke-width="4" class="scan-line-svg" />
+        </svg>
+      </div>
+      <div class="pulse-ring"></div>
+    </ion-tab-button>
+
+    <!-- Notifications -->
+    <ion-tab-button tab="notifications">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <ion-label>Alerts</ion-label>
+    </ion-tab-button>
+
+    <!-- Profile -->
+    <ion-tab-button tab="profile">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Profile</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

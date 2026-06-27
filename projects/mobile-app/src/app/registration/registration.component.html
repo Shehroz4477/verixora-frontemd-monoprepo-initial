@@ -1,21 +1,33 @@
-<ion-content class="login-content" scroll="false">
-  <div class="login-wrapper">
-    <div class="login-card">
+<ion-content class="register-content" scroll="false">
+  <div class="register-wrapper">
+    <div class="register-card">
 
       <!-- Brand -->
       <div class="brand">
         <div class="brand-icon">🔐</div>
         <h1 class="brand-title">Verixora</h1>
-        <p class="brand-subtitle">Secure Smart Access</p>
+        <p class="brand-subtitle">Create your account</p>
       </div>
 
       <!-- Form -->
       <div class="form">
 
+        <!-- Country Selector -->
+        <div class="input-group country-group">
+          <label class="input-label">Select Country</label>
+          <button class="country-select-btn" (click)="openCountrySelector()" type="button">
+            <span class="country-flag">{{ selectedCountry?.flag || '🌍' }}</span>
+            <span class="country-name">{{ selectedCountry?.name || 'Pakistan' }}</span>
+            <span class="country-dial">{{ selectedCountry?.dial || '+92' }}</span>
+            <ion-icon name="chevron-down-outline" class="country-arrow"></ion-icon>
+          </button>
+        </div>
+
         <!-- Phone Input -->
-        <div class="input-group">
+        <div class="input-group phone-group">
+          <label class="input-label">Phone Number</label>
           <ion-item
-            class="input-item"
+            class="input-item phone-item"
             lines="none"
             [class.error]="phoneTouched && !isPhoneValid"
             [class.valid]="phoneTouched && isPhoneValid"
@@ -23,9 +35,8 @@
             <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
             <ion-input
               type="tel"
-              [placeholder]="dialCode + ' 300 1234567'"
+              placeholder="Enter phone number"
               [(ngModel)]="phoneNumber"
-              [readonly]="isPhoneReadOnly"
               (ionFocus)="phoneTouched = true"
               (ionBlur)="phoneTouched = true"
               class="input-field"
@@ -47,18 +58,15 @@
             <ion-icon name="alert-circle-outline"></ion-icon>
             {{ phoneError }}
           </div>
-          <div class="phone-hint" *ngIf="isPhoneReadOnly">
-            <ion-icon name="lock-closed-outline"></ion-icon>
-            This device is registered to {{ phoneNumber }}
-          </div>
-          <div class="phone-hint" *ngIf="!isPhoneReadOnly">
+          <div class="phone-hint" *ngIf="!phoneError && selectedCountry">
             <ion-icon name="information-circle-outline"></ion-icon>
-            Country code auto-detected ({{ dialCode }})
+            {{ selectedCountry.flag }} {{ selectedCountry.name }} – expects {{ selectedCountry.minDigits }}–{{ selectedCountry.maxDigits }} digits
           </div>
         </div>
 
         <!-- Password -->
         <div class="input-group">
+          <label class="input-label">Password</label>
           <ion-item
             class="input-item"
             lines="none"
@@ -68,7 +76,7 @@
             <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
             <ion-input
               type="password"
-              placeholder="Password"
+              placeholder="Enter password"
               [(ngModel)]="password"
               (ionFocus)="passwordTouched = true"
               (ionBlur)="passwordTouched = true"
@@ -88,7 +96,7 @@
             ></ion-icon>
           </ion-item>
 
-          <!-- Password Strength Checklist -->
+          <!-- Password Checklist -->
           <div *ngIf="passwordTouched" class="password-checklist">
             <div class="check-item" [class.passed]="passwordChecks.minLength">
               <ion-icon [name]="passwordChecks.minLength ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
@@ -113,20 +121,94 @@
           </div>
         </div>
 
-        <!-- Continue Button -->
+        <!-- Confirm Password -->
+        <div class="input-group">
+          <label class="input-label">Confirm Password</label>
+          <ion-item
+            class="input-item"
+            lines="none"
+            [class.error]="confirmTouched && !!confirmPasswordError"
+            [class.valid]="confirmTouched && isConfirmValid"
+          >
+            <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              type="password"
+              placeholder="Confirm password"
+              [(ngModel)]="confirmPassword"
+              (ionFocus)="confirmTouched = true"
+              (ionBlur)="confirmTouched = true"
+              class="input-field"
+            ></ion-input>
+            <ion-icon
+              *ngIf="confirmTouched && isConfirmValid"
+              name="checkmark-circle-outline"
+              slot="end"
+              class="valid-icon"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="confirmTouched && confirmPasswordError"
+              name="alert-circle-outline"
+              slot="end"
+              class="error-icon"
+            ></ion-icon>
+          </ion-item>
+          <div *ngIf="confirmTouched && confirmPasswordError" class="validation-error">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {{ confirmPasswordError }}
+          </div>
+        </div>
+
+        <!-- Email (Optional) -->
+        <div class="input-group">
+          <label class="input-label">Email (optional)</label>
+          <ion-item
+            class="input-item"
+            lines="none"
+            [class.error]="emailTouched && emailError"
+            [class.valid]="emailTouched && !emailError && email"
+          >
+            <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              type="email"
+              placeholder="Enter email address"
+              [(ngModel)]="email"
+              (ionFocus)="emailTouched = true"
+              (ionBlur)="emailTouched = true"
+              class="input-field"
+            ></ion-input>
+            <ion-icon
+              *ngIf="emailTouched && !emailError && email"
+              name="checkmark-circle-outline"
+              slot="end"
+              class="valid-icon"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="emailTouched && emailError"
+              name="alert-circle-outline"
+              slot="end"
+              class="error-icon"
+            ></ion-icon>
+          </ion-item>
+          <div *ngIf="emailTouched && emailError" class="validation-error">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {{ emailError }}
+          </div>
+        </div>
+
+        <!-- Register Button -->
         <ion-button
-          class="login-btn"
+          class="register-btn"
           expand="block"
-          (click)="sendOtp()"
+          (click)="register()"
           [disabled]="isLoading"
         >
           <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-          <span *ngIf="!isLoading">Continue</span>
+          <span *ngIf="!isLoading">Create Account</span>
         </ion-button>
 
         <!-- Footer -->
         <div class="footer">
-          <span>New here? <a (click)="goToRegister()">Create Account</a></span>
+          <span>Already have an account? <a (click)="goToLogin()">Sign In</a></span>
         </div>
 
         <!-- Message -->

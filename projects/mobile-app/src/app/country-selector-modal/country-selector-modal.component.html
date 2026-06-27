@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Select Country</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Search Bar -->
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="filterCountries()"
+    placeholder="Search country or dial code"
+    class="search-bar"
+  ></ion-searchbar>
+
+  <!-- Country List -->
+  <ion-list>
+    <ion-item
+      *ngFor="let country of filteredCountries"
+      (click)="selectCountry(country)"
+      class="country-item"
+    >
+      <ion-avatar slot="start" class="country-flag">
+        <span>{{ country.flag }}</span>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ country.name }}</h2>
+        <p>{{ country.code }} {{ country.dial }}</p>
+      </ion-label>
+      <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="filteredCountries.length === 0" class="empty-state">
+    <ion-icon name="search-outline"></ion-icon>
+    <p>No countries found</p>
+  </div>
+</ion-content>

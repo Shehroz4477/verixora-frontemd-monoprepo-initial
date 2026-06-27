@@ -1,11 +1,11 @@
-﻿@import 'variables';
+@import 'variables';
 @import 'mixins';
 
-.login-content {
+.register-content {
   --background: #{$neutral-900};
 }
 
-.login-wrapper {
+.register-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,15 +14,11 @@
   padding: $space-6;
   box-sizing: border-box;
 
-  @include mobile-sm {
-    padding: $space-4;
-  }
-  @include mobile-xs {
-    padding: $space-3;
-  }
+  @include mobile-sm { padding: $space-4; }
+  @include mobile-xs { padding: $space-3; }
 }
 
-.login-card {
+.register-card {
   width: 100%;
   max-width: 420px;
   padding: $space-8 $space-6;
@@ -45,9 +41,7 @@
   text-align: center;
   margin-bottom: $space-8;
 
-  @include mobile-sm {
-    margin-bottom: $space-6;
-  }
+  @include mobile-sm { margin-bottom: $space-6; }
 
   .brand-icon {
     font-size: 48px;
@@ -55,9 +49,7 @@
     margin-bottom: $space-4;
     animation: pulse 2s ease-in-out infinite;
 
-    @include mobile-sm {
-      font-size: 40px;
-    }
+    @include mobile-sm { font-size: 40px; }
   }
 
   .brand-title {
@@ -81,15 +73,125 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: $space-4;
+  gap: $space-5;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: $space-1;
 }
 
+.input-label {
+  font-size: $font-size-xs;
+  font-weight: $font-semibold;
+  color: $neutral-400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: $space-1;
+}
+
+// =============================================
+// PHONE ROW – Country Button + Input
+// =============================================
+.phone-group {
+  .phone-row {
+    display: flex;
+    gap: $space-2;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .country-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $neutral-900;
+    border: 1px solid $neutral-700;
+    border-radius: $radius-lg;
+    padding: 0 $space-3;
+    min-height: 54px;
+    flex: 0 0 100px;
+    cursor: pointer;
+    transition: all $transition-fast;
+    color: $white;
+    font-size: $font-size-sm;
+    font-weight: $font-medium;
+
+    @include mobile-sm {
+      min-height: 48px;
+      flex: 0 0 80px;
+      border-radius: $radius-md;
+      font-size: $font-size-xs;
+      padding: 0 $space-2;
+    }
+    @include mobile-xs {
+      min-height: 44px;
+      flex: 0 0 70px;
+      border-radius: $radius-sm;
+      font-size: 10px;
+      padding: 0 $space-1;
+    }
+
+    &:hover {
+      border-color: $color-primary;
+      background: rgba($color-primary, 0.05);
+    }
+
+    .country-flag {
+      font-size: 22px;
+      margin-right: $space-1;
+      @include mobile-xs { font-size: 18px; }
+    }
+
+    .country-code {
+      font-weight: $font-semibold;
+      margin-right: $space-1;
+    }
+
+    .country-arrow {
+      font-size: 14px;
+      color: $neutral-500;
+      transition: transform $transition-fast;
+    }
+  }
+
+  .phone-input-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .phone-item {
+    --padding-start: #{$space-4};
+    --padding-end: #{$space-4};
+    height: 100%;
+
+    @include mobile-sm {
+      --padding-start: #{$space-3};
+      --padding-end: #{$space-3};
+    }
+    @include mobile-xs {
+      --padding-start: #{$space-2};
+      --padding-end: #{$space-2};
+    }
+  }
+
+  .phone-hint {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    font-size: $font-size-xs;
+    color: $neutral-500;
+    padding-left: $space-1;
+    margin-top: $space-1;
+
+    ion-icon { font-size: 14px; }
+  }
+}
+
+// =============================================
+// INPUT ITEMS (common)
+// =============================================
 .input-item {
   --background: #{$neutral-900};
   --border-radius: #{$radius-lg};
@@ -132,10 +234,7 @@
   .input-icon {
     font-size: 22px;
     color: $neutral-500;
-
-    @include mobile-sm {
-      font-size: 18px;
-    }
+    @include mobile-sm { font-size: 18px; }
   }
 
   .input-field {
@@ -144,15 +243,12 @@
     --placeholder-opacity: 0.8;
     font-size: $font-size-base;
 
-    @include mobile-sm {
-      font-size: $font-size-sm;
-    }
-    @include mobile-xs {
-      font-size: $font-size-xs;
-    }
+    @include mobile-sm { font-size: $font-size-sm; }
+    @include mobile-xs { font-size: $font-size-xs; }
   }
 
-  .valid-icon, .error-icon {
+  .valid-icon,
+  .error-icon {
     font-size: 22px;
   }
   .valid-icon { color: $color-success; }
@@ -162,11 +258,11 @@
 .validation-error {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: $space-1;
   font-size: $font-size-xs;
   color: $color-danger;
   padding-left: $space-1;
-  margin-top: 2px;
+  margin-top: $space-1;
 
   ion-icon {
     font-size: 16px;
@@ -174,41 +270,30 @@
   }
 }
 
-.phone-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: $font-size-xs;
-  color: $neutral-500;
-  padding-left: 4px;
-  margin-top: 2px;
-
-  ion-icon {
-    font-size: 14px;
-  }
-}
-
+// =============================================
+// PASSWORD CHECKLIST
+// =============================================
 .password-checklist {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px 4px;
-  margin-top: -4px;
+  padding: $space-1 0;
+  margin-top: $space-1;
 }
 
 .check-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $space-2;
   font-size: $font-size-xs;
   color: $neutral-500;
-  transition: color 0.2s ease;
+  transition: color $transition-fast;
   padding: 2px 0;
 
   ion-icon {
     font-size: 16px;
     color: $neutral-500;
-    transition: color 0.2s ease;
+    transition: color $transition-fast;
   }
 
   &.passed {
@@ -217,7 +302,10 @@
   }
 }
 
-.login-btn {
+// =============================================
+// BUTTON
+// =============================================
+.register-btn {
   --background: var(--vx-gradient-primary);
   --border-radius: #{$radius-lg};
   --box-shadow: 0 4px 16px rgba($color-primary, 0.3);
@@ -252,15 +340,16 @@
   }
 }
 
+// =============================================
+// FOOTER & MESSAGE
+// =============================================
 .footer {
   text-align: center;
   font-size: $font-size-sm;
   color: $neutral-400;
   margin-top: $space-2;
 
-  @include mobile-xs {
-    font-size: $font-size-xs;
-  }
+  @include mobile-xs { font-size: $font-size-xs; }
 
   a {
     color: $color-primary;
@@ -320,4 +409,72 @@
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+// =============================================
+// COUNTRY SELECTOR (Full width)
+// =============================================
+.country-group {
+  .country-select-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $neutral-900;
+    border: 1px solid $neutral-700;
+    border-radius: $radius-lg;
+    padding: $space-3 $space-4;
+    min-height: 54px;
+    width: 100%;
+    cursor: pointer;
+    transition: all $transition-fast;
+    color: $white;
+
+    @include mobile-sm {
+      min-height: 48px;
+      border-radius: $radius-md;
+      padding: $space-2 $space-3;
+    }
+    @include mobile-xs {
+      min-height: 44px;
+      border-radius: $radius-sm;
+      padding: $space-2 $space-2;
+    }
+
+    &:hover {
+      border-color: $color-primary;
+      background: rgba($color-primary, 0.05);
+    }
+
+    .country-flag {
+      font-size: 28px;
+      flex-shrink: 0;
+      @include mobile-sm { font-size: 22px; }
+      @include mobile-xs { font-size: 18px; }
+    }
+
+    .country-name {
+      flex: 1;
+      text-align: center;
+      font-size: $font-size-base;
+      font-weight: $font-medium;
+      padding: 0 $space-2;
+      @include mobile-sm { font-size: $font-size-sm; }
+      @include mobile-xs { font-size: $font-size-xs; }
+    }
+
+    .country-dial {
+      font-size: $font-size-sm;
+      color: $neutral-400;
+      flex-shrink: 0;
+      @include mobile-sm { font-size: $font-size-xs; }
+    }
+
+    .country-arrow {
+      font-size: 18px;
+      color: $neutral-500;
+      margin-left: $space-2;
+      flex-shrink: 0;
+      transition: transform $transition-fast;
+    }
+  }
 }

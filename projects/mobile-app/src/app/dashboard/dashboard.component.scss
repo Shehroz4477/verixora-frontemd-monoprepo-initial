@@ -5,22 +5,14 @@
   --background: #{$neutral-900};
 }
 
-// ========================================
-// HEADER
-// ========================================
 ion-toolbar {
   --background: transparent;
   --border-color: transparent;
-  --padding-top: #{$space-2};
-  --padding-bottom: #{$space-2};
   --min-height: 56px;
-
-  @include mobile-sm {
-    --min-height: 48px;
-  }
+  @include mobile-sm { --min-height: 48px; }
 }
 
-.header-left {
+.header-left, .header-right {
   display: flex;
   align-items: center;
 }
@@ -29,10 +21,6 @@ ion-toolbar {
   display: flex;
   align-items: center;
   gap: $space-2;
-
-  @include mobile-xs {
-    gap: $space-2;
-  }
 }
 
 .logo-icon {
@@ -45,369 +33,184 @@ ion-toolbar {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @include mobile-sm {
-    width: 32px;
-    height: 32px;
-    font-size: $font-size-base;
-  }
+  @include mobile-sm { width: 32px; height: 32px; font-size: $font-size-base; }
 }
 
 .brand-title {
   font-weight: $font-bold;
   font-size: $font-size-md;
   color: $white;
-  letter-spacing: -0.5px;
-
-  @include mobile-sm {
-    font-size: $font-size-sm;
-  }
+  @include mobile-sm { font-size: $font-size-sm; }
 }
 
 .header-right {
-  display: flex;
-  align-items: center;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
   gap: $space-1;
-}
-
-.hide-mobile {
-  @include mobile-sm {
-    display: none !important;
+  .action-btn {
+    --color: #{$neutral-400};
+    --padding-start: #{$space-2};
+    --padding-end: #{$space-2};
+    --border-radius: #{$radius-full};
+    height: 36px;
+    width: 36px;
+    &:hover { --color: #{$white}; --background: rgba(255,255,255,0.05); }
+  }
+  .logout-btn {
+    --color: #{$color-danger};
+    --border-radius: #{$radius-full};
+    &:hover { --background: rgba($color-danger,0.1); }
   }
 }
 
-.action-btn {
-  --color: #{$neutral-400};
-  --padding-start: #{$space-2};
-  --padding-end: #{$space-2};
-  --border-radius: #{$radius-full};
-  height: 36px;
-  width: 36px;
-
-  &:hover {
-    --color: #{$white};
-    --background: rgba(255, 255, 255, 0.05);
-  }
-}
-
-.divider {
-  width: 1px;
-  height: 28px;
-  background: $neutral-700;
-  margin: 0 $space-2;
-}
-
-.logout-btn {
-  --color: #{$color-danger};
-  --border-radius: #{$radius-md};
-  height: 36px;
-  padding: 0 $space-3;
-  display: flex;
-  align-items: center;
-  gap: $space-1;
-
-  @include mobile-sm {
-    padding: 0 $space-2;
-    height: 32px;
-  }
-
-  &:hover {
-    --background: rgba($color-danger, 0.1);
-  }
-}
-
-.logout-icon {
-  font-size: 20px;
-  transition: all $transition-fast;
-
-  @include mobile-sm {
-    font-size: 18px;
-  }
-}
-
-.logout-text {
-  font-size: $font-size-sm;
-  font-weight: $font-medium;
-  color: $color-danger;
-  margin-left: $space-1;
-
-  @include mobile-sm {
-    display: none;
-  }
-}
-
-// ========================================
-// LOADING & ERROR STATES
-// ========================================
-.loading-state,
-.error-state {
+.loading-state, .error-state {
   @include flex-column-center;
   min-height: 60vh;
   color: $neutral-400;
-  text-align: center;
   padding: $space-8;
-
-  ion-spinner {
-    --color: #{$color-primary};
-    width: 48px;
-    height: 48px;
-    margin-bottom: $space-4;
-  }
-
-  .error-icon {
-    font-size: 48px;
-    color: $color-danger;
-    margin-bottom: $space-4;
-  }
-
-  p {
-    font-size: $font-size-base;
-    margin-bottom: $space-4;
-  }
-
-  ion-button {
-    --border-radius: #{$radius-md};
-    --background: var(--vx-gradient-primary);
-    --box-shadow: 0 4px 12px rgba($color-primary, 0.3);
-  }
+  text-align: center;
+  ion-spinner { --color: #{$color-primary}; width: 48px; height: 48px; margin-bottom: $space-4; }
+  .error-icon { font-size: 48px; color: $color-danger; margin-bottom: $space-4; }
+  p { margin-bottom: $space-4; }
+  ion-button { --border-radius: #{$radius-md}; --background: var(--vx-gradient-primary); --box-shadow: 0 4px 12px rgba($color-primary,0.3); }
 }
 
-// ========================================
-// WELCOME BANNER
-// ========================================
 .welcome-banner {
   background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
   margin: $space-4 $space-6;
   padding: $space-5 $space-6;
   border-radius: $radius-2xl;
   border: 1px solid $neutral-700;
-  position: relative;
-  overflow: hidden;
-
-  @include mobile-sm {
-    margin: $space-3 $space-4;
-    padding: $space-4 $space-4;
-    border-radius: $radius-xl;
-  }
-
-  @include mobile-xs {
-    margin: $space-2 $space-3;
-    padding: $space-3 $space-3;
-  }
+  text-align: center;
+  @include mobile-sm { margin: $space-3 $space-4; padding: $space-4 $space-4; border-radius: $radius-xl; }
+  @include mobile-xs { margin: $space-2 $space-3; padding: $space-3 $space-3; }
 }
-
 .greeting {
   font-size: $font-size-2xl;
   font-weight: $font-bold;
   color: $white;
   margin: 0;
-
-  @include mobile-sm {
-    font-size: $font-size-xl;
-  }
-
-  @include mobile-xs {
-    font-size: $font-size-lg;
-  }
+  @include mobile-sm { font-size: $font-size-xl; }
+  @include mobile-xs { font-size: $font-size-lg; }
 }
-
 .sub-greeting {
   color: $neutral-400;
   font-size: $font-size-sm;
   margin: $space-1 0 0;
-
-  @include mobile-xs {
-    font-size: $font-size-xs;
-  }
+  @include mobile-xs { font-size: $font-size-xs; }
 }
 
-// ========================================
-// STATS GRID
-// ========================================
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.stats-row {
+  display: flex;
+  justify-content: space-between;
   gap: $space-4;
-  padding: 0 $space-6 $space-4;
-
-  @include mobile-sm {
-    grid-template-columns: repeat(3, 1fr);
-    gap: $space-3;
-    padding: 0 $space-4 $space-3;
-  }
-
-  @include mobile-xs {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $space-2;
-    padding: 0 $space-3 $space-2;
-  }
+  padding: 0 $space-6;
+  margin-bottom: $space-4;
+  @include mobile-sm { padding: 0 $space-4; gap: $space-3; }
+  @include mobile-xs { padding: 0 $space-3; gap: $space-2; flex-wrap: wrap; justify-content: center; }
 }
-
 .stat-card {
+  flex: 1;
+  min-width: 80px;
   background: $neutral-800;
   border-radius: $radius-lg;
-  padding: $space-4;
+  padding: $space-3 $space-2;
   border: 1px solid $neutral-700;
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-
-  @include mobile-xs {
-    padding: $space-3;
-    gap: $space-2;
-  }
-}
-
-.stat-icon-wrapper {
-  width: 40px;
-  height: 40px;
-  border-radius: $radius-md;
-  background: rgba($color-primary, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-
-  @include mobile-xs {
-    width: 32px;
-    height: 32px;
+  gap: $space-3;
+  @include mobile-xs { flex: 0 1 45%; padding: $space-2; gap: $space-2; }
+  .stat-icon {
+    font-size: $font-size-xl;
+    color: $color-primary;
+    @include mobile-xs { font-size: $font-size-lg; }
+  }
+  &.success .stat-icon { color: $color-success; }
+  &.danger .stat-icon { color: $color-danger; }
+  .stat-number {
+    font-size: $font-size-lg;
+    font-weight: $font-bold;
+    color: $white;
+    line-height: 1.2;
+    @include mobile-xs { font-size: $font-size-base; }
+  }
+  .stat-label {
+    font-size: $font-size-xs;
+    color: $neutral-400;
+    font-weight: $font-medium;
+    @include mobile-xs { font-size: 10px; }
   }
 }
 
-.stat-icon {
-  font-size: 20px;
-  color: $color-primary;
-
-  @include mobile-xs {
-    font-size: 16px;
-  }
-}
-
-.stat-number {
-  font-size: $font-size-lg;
-  font-weight: $font-bold;
-  color: $white;
-  line-height: 1.2;
-
-  @include mobile-xs {
-    font-size: $font-size-base;
-  }
-}
-
-.stat-label {
-  font-size: $font-size-xs;
-  color: $neutral-400;
-  font-weight: $font-medium;
-}
-
-// ========================================
-// DOOR SECTION
-// ========================================
 .door-section {
   padding: $space-4 $space-6;
-
-  @include mobile-sm {
-    padding: $space-3 $space-4;
-  }
-
-  @include mobile-xs {
-    padding: $space-2 $space-3;
-  }
+  @include mobile-sm { padding: $space-3 $space-4; }
+  @include mobile-xs { padding: $space-2 $space-3; }
 }
-
 .section-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: $space-4;
-
-  @include mobile-xs {
-    flex-wrap: wrap;
-    gap: $space-2;
-  }
-}
-
-.section-title {
-  display: flex;
   align-items: center;
-  gap: $space-3;
-
-  h2 {
-    font-size: $font-size-lg;
-    font-weight: $font-semibold;
-    color: $white;
-    margin: 0;
-
-    @include mobile-sm {
-      font-size: $font-size-md;
-    }
+  margin-bottom: $space-4;
+  h2 { font-size: $font-size-lg; font-weight: $font-semibold; color: $white; margin: 0; @include mobile-sm { font-size: $font-size-md; } }
+  span { font-size: $font-size-sm; color: $neutral-400; @include mobile-xs { font-size: $font-size-xs; } }
+  .view-all-btn {
+    --color: #{$color-primary};
+    --padding-start: #{$space-2};
+    --padding-end: #{$space-2};
+    font-size: $font-size-sm;
+    font-weight: $font-medium;
+    text-transform: none;
+    @include mobile-xs { font-size: $font-size-xs; }
   }
 }
 
-.section-badge {
-  background: $neutral-800;
-  color: $neutral-400;
-  padding: $space-1 $space-3;
-  border-radius: $radius-full;
-  font-size: $font-size-xs;
-  border: 1px solid $neutral-700;
-
-  @include mobile-xs {
-    display: none;
-  }
-}
-
-.view-all-btn {
-  --color: #{$color-primary};
-  --padding-start: #{$space-2};
-  --padding-end: #{$space-2};
-  font-size: $font-size-sm;
-  font-weight: $font-medium;
-  text-transform: none;
-
-  @include mobile-xs {
-    font-size: $font-size-xs;
-  }
-}
-
-// ========================================
-// DOOR CARDS
-// ========================================
 .door-grid {
   display: flex;
   flex-direction: column;
   gap: $space-4;
-
-  @include mobile-xs {
-    gap: $space-3;
-  }
+  @include mobile-xs { gap: $space-3; }
 }
 
 .door-card {
   background: $neutral-800;
   border-radius: $radius-xl;
   border: 1px solid $neutral-700;
-  padding: $space-4 $space-5;
-  transition: all $transition-base;
+  padding: $space-4;
+  transition: $transition-base;
+  @include mobile-sm { padding: $space-3; border-radius: $radius-lg; }
+  @include mobile-xs { padding: $space-2; border-radius: $radius-md; }
+  &:hover { border-color: rgba($color-primary,0.2); box-shadow: $shadow-lg; }
+  &.offline { opacity: 0.6; }
+}
 
-  @include mobile-sm {
-    padding: $space-3 $space-4;
-    border-radius: $radius-lg;
+.door-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-3;
+
+  .door-status {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
   }
 
-  @include mobile-xs {
-    padding: $space-3;
-    border-radius: $radius-md;
+  .status-dot {
+    width: 8px; height: 8px; border-radius: $radius-full; display: inline-block;
+    &.online { background: $color-success; }
+    &.offline { background: $color-danger; }
   }
-
-  &:hover {
-    border-color: rgba($color-primary, 0.2);
-    box-shadow: $shadow-lg;
+  .status-label {
+    font-size: $font-size-xs; font-weight: $font-medium; color: $neutral-400; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .more-btn {
+    --color: #{$neutral-400};
+    --padding-start: #{$space-2};
+    --padding-end: #{$space-2};
+    --border-radius: #{$radius-full};
+    height: 32px;
+    width: 32px;
+    &:hover { --color: #{$white}; --background: rgba(255,255,255,0.05); }
   }
 }
 
@@ -415,176 +218,44 @@ ion-toolbar {
   display: flex;
   align-items: center;
   gap: $space-4;
-
-  @include mobile-sm {
-    flex-wrap: wrap;
-    gap: $space-3;
-  }
-
-  @include mobile-xs {
-    gap: $space-2;
-  }
+  @include mobile-sm { flex-wrap: wrap; gap: $space-3; }
+  @include mobile-xs { gap: $space-2; }
 }
-
-.door-icon-wrapper {
-  flex-shrink: 0;
-}
-
 .door-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-full;
-  background: rgba($color-primary, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: $color-primary;
-
-  @include mobile-sm {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  @include mobile-xs {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-  }
+  width: 48px; height: 48px; border-radius: $radius-full; background: rgba($color-primary,0.12); display: flex; align-items: center; justify-content: center; font-size: 24px; color: $color-primary; flex-shrink: 0;
+  @include mobile-sm { width: 40px; height: 40px; font-size: 20px; }
+  @include mobile-xs { width: 32px; height: 32px; font-size: 16px; }
 }
-
 .door-info {
-  flex: 1;
-  min-width: 120px;
+  flex: 1; min-width: 0;
+  .door-name { font-size: $font-size-md; font-weight: $font-semibold; color: $white; margin: 0 0 $space-1; @include mobile-sm { font-size: $font-size-sm; } }
+  .door-location { display: flex; align-items: center; gap: $space-1; font-size: $font-size-sm; color: $neutral-400; @include mobile-xs { font-size: $font-size-xs; } }
+  .door-meta { display: flex; align-items: center; gap: $space-1; font-size: $font-size-xs; color: $neutral-500; ion-icon { font-size: 12px; } }
 }
-
-.door-name {
-  font-size: $font-size-md;
-  font-weight: $font-semibold;
-  color: $white;
-  margin: 0 0 $space-1;
-
-  @include mobile-sm {
-    font-size: $font-size-sm;
-  }
-}
-
-.door-location {
-  display: flex;
-  align-items: center;
-  gap: $space-1;
-  font-size: $font-size-sm;
-  color: $neutral-400;
-  margin: 0 0 $space-1;
-
-  @include mobile-xs {
-    font-size: $font-size-xs;
-  }
-}
-
-.door-meta {
-  display: flex;
-  gap: $space-3;
-
-  @include mobile-xs {
-    gap: $space-2;
-  }
-}
-
-.meta-item {
-  font-size: $font-size-xs;
-  color: $neutral-500;
-  display: flex;
-  align-items: center;
-  gap: $space-1;
-
-  ion-icon {
-    font-size: 12px;
-  }
-}
-
-.door-actions {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  flex-shrink: 0;
-
-  @include mobile-sm {
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: $space-2;
-  }
-}
-
 .unlock-btn {
   --background: var(--vx-gradient-primary);
   --border-radius: #{$radius-md};
-  --box-shadow: 0 4px 12px rgba($color-primary, 0.3);
+  --box-shadow: 0 4px 12px rgba($color-primary,0.3);
   height: 36px;
   font-size: $font-size-xs;
   font-weight: $font-semibold;
   text-transform: none;
   padding: 0 $space-4;
-
-  @include mobile-sm {
-    height: 32px;
-    font-size: 11px;
-    padding: 0 $space-3;
-  }
-
-  ion-icon {
-    font-size: 16px;
-  }
-
-  &:hover {
-    --box-shadow: 0 6px 20px rgba($color-primary, 0.4);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  &[disabled] {
-    opacity: 0.4;
-    --box-shadow: none;
-  }
+  flex-shrink: 0;
+  @include mobile-sm { height: 32px; font-size: 11px; padding: 0 $space-3; }
+  ion-icon { font-size: 16px; }
+  &:hover { --box-shadow: 0 6px 20px rgba($color-primary,0.4); transform: translateY(-1px); }
+  &:active { transform: scale(0.95); }
+  &[disabled] { opacity: 0.4; --box-shadow: none; }
 }
 
-.more-btn {
-  --color: #{$neutral-400};
-  --border-radius: #{$radius-full};
-  --padding-start: #{$space-2};
-  --padding-end: #{$space-2};
-  height: 34px;
-  width: 34px;
-
-  &:hover {
-    --color: #{$white};
-    --background: rgba(255, 255, 255, 0.05);
-  }
-}
-
-// ========================================
-// QUICK ACTIONS
-// ========================================
 .quick-actions {
   display: flex;
   gap: $space-4;
   padding: $space-4 $space-6 $space-8;
-
-  @include mobile-sm {
-    flex-direction: column;
-    gap: $space-3;
-    padding: $space-3 $space-4 $space-6;
-  }
-
-  @include mobile-xs {
-    padding: $space-2 $space-3 $space-4;
-  }
+  @include mobile-sm { flex-direction: column; gap: $space-3; padding: $space-3 $space-4 $space-6; }
+  @include mobile-xs { padding: $space-2 $space-3 $space-4; }
 }
-
 .quick-action-btn {
   --border-color: #{$neutral-700};
   --border-radius: #{$radius-lg};
@@ -593,19 +264,7 @@ ion-toolbar {
   height: 44px;
   font-weight: $font-medium;
   text-transform: none;
-
-  @include mobile-sm {
-    height: 38px;
-    font-size: $font-size-sm;
-  }
-
-  ion-icon {
-    font-size: 18px;
-  }
-
-  &:hover {
-    --border-color: #{$color-primary};
-    --color: #{$color-primary};
-    --background: rgba($color-primary, 0.05);
-  }
+  @include mobile-sm { height: 38px; font-size: $font-size-sm; }
+  ion-icon { font-size: 18px; }
+  &:hover { --border-color: #{$color-primary}; --color: #{$color-primary}; --background: rgba($color-primary,0.05); }
 }

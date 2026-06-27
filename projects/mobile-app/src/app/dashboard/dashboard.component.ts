@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
 
@@ -11,6 +10,7 @@ interface Door {
   status: 'online' | 'offline' | 'locked';
   deviceId?: string;
   mqttTopic?: string;
+  lastActivity: string;  // static – no random generation in template
 }
 
 @Component({
@@ -44,19 +44,24 @@ export class DashboardComponent implements OnInit {
     this.errorMessage = '';
 
     if (this.auth.isMockMode()) {
+      // Static lastActivity – generated once per door (no random in template)
       this.doors = [
-        { id: '1', name: 'Front Door', home: 'Main Home', status: 'online' },
-        { id: '2', name: 'Back Door', home: 'Main Home', status: 'online' },
-        { id: '3', name: 'Office Door', home: 'Work', status: 'offline' },
-        { id: '4', name: 'Garage Door', home: 'Main Home', status: 'locked' }
+        { id: '1', name: 'Front Door', home: 'Main Home', status: 'online', lastActivity: '2 hours ago' },
+        { id: '2', name: 'Back Door', home: 'Main Home', status: 'online', lastActivity: '5 hours ago' },
+        { id: '3', name: 'Office Door', home: 'Work', status: 'offline', lastActivity: '1 day ago' },
+        { id: '4', name: 'Garage Door', home: 'Main Home', status: 'locked', lastActivity: '10 minutes ago' }
       ];
       this.isLoading = false;
       return;
     }
 
+    // Real API call – lastActivity may come from backend, else use default
     this.api.get<Door[]>('/devices').subscribe({
       next: (data) => {
-        this.doors = data;
+        this.doors = data.map(door => ({
+          ...door,
+          lastActivity: door.lastActivity || 'Recently'
+        }));
         this.isLoading = false;
       },
       error: (err) => {
@@ -75,16 +80,9 @@ export class DashboardComponent implements OnInit {
     return this.doors.filter(d => d.status === 'offline').length;
   }
 
-  getLastActivity(): string {
-    const hours = Math.floor(Math.random() * 24);
-    if (hours < 1) return 'Just now';
-    if (hours < 2) return '1 hour ago';
-    return `${hours} hours ago`;
-  }
-
-  // Generate idempotency key using uuid package – reliable across all platforms
+  // Idempotency key using built‑in crypto (no uuid package)
   private generateIdempotencyKey(): string {
-    return uuidv4();
+    return crypto.randomUUID();
   }
 
   unlockDoor(doorId: string): void {
@@ -110,12 +108,22 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // --- Navigation / Actions ---
   logout(): void {
     this.auth.logout();
   }
 
+  openSettings(): void {
+    alert('⚙️ Settings page coming soon!');
+  }
+
+  openNotifications(): void {
+    alert('🔔 Notifications coming soon!');
+  }
+
   viewAllDoors(): void {
     alert('📋 Viewing all doors...');
+    // Replace with: this.router.navigate(['/doors']);
   }
 
   addDoor(): void {

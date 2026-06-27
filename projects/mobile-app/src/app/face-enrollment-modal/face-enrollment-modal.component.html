@@ -1,0 +1,51 @@
+<ion-content class="enrollment-content" scroll="false">
+  <div class="enrollment-overlay">
+    <!-- Scanner UI (visible while scanning) -->
+    <div *ngIf="!isComplete && !error" class="scanner-container">
+      <div class="scanner-frame">
+        <!-- Corner brackets -->
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
+
+        <!-- Face silhouette -->
+        <div class="face-icon-silhouette">
+          <svg viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="38" r="20" stroke="#4F6AF5" stroke-width="2" fill="none" opacity="0.8" />
+            <path d="M 35 62 Q 50 52 65 62" stroke="#4F6AF5" stroke-width="2" fill="none" opacity="0.8" />
+          </svg>
+        </div>
+
+        <!-- Scanning line (horizontal, gradient, animated) -->
+        <div class="scan-line"></div>
+      </div>
+
+      <!-- Status & Progress -->
+      <div class="scanner-status">
+        <span class="status-text">{{ statusMessage }}</span>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="isComplete" class="success-state">
+      <div class="success-ring">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </div>
+      <h2>Face Enrolled</h2>
+      <p>Your face has been successfully registered</p>
+      <ion-button (click)="close()" class="done-btn">Done</ion-button>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-state">
+      <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+      <h2>Scan Failed</h2>
+      <p>{{ error }}</p>
+      <ion-button (click)="close()" class="done-btn">Try Again</ion-button>
+    </div>
+  </div>
+</ion-content>

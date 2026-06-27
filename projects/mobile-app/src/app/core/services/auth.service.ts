@@ -16,7 +16,6 @@ interface AuthData {
 export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-
   private authData: AuthData | null = null;
 
   constructor(
@@ -37,21 +36,20 @@ export class AuthService {
     }
   }
 
-  // Check if we are in mock mode
   isMockMode(): boolean {
     return environment.useMock;
   }
 
-  sendLoginOtp(phoneNumber: string, password: string): Observable<any> {
+  sendLoginOtp(phoneNumber: string, password: string, deviceFingerprint: string): Observable<any> {
     if (this.isMockMode()) {
       return of({ success: true, message: 'OTP sent (mock: 123456)' }).pipe(delay(500));
     }
-    return this.api.post('/auth/send-login-otp', { phoneNumber, password });
+    return this.api.post('/auth/send-login-otp', { phoneNumber, password, deviceFingerprint });
   }
 
   login(phoneNumber: string, password: string, otp: string): Observable<any> {
     if (this.isMockMode()) {
-      if (otp == '123456') {
+      if (otp === '123456') {
         const mockData: AuthData = {
           token: 'mock-jwt-token',
           userId: 'mock-user-id',
@@ -64,7 +62,7 @@ export class AuthService {
           }).catch(err => observer.error(err));
         });
       } else {
-        return throwError(() => ({ error: { error: 'Invalid OTP. Please try again.' } }));
+        return throwError(() => ({ error: { error: 'Invalid OTP' } }));
       }
     }
 
@@ -82,6 +80,26 @@ export class AuthService {
         await this.handleAuthSuccess(authData);
       })
     );
+  }
+
+  sendRegistrationOtp(phoneNumber: string, deviceFingerprint: string): Observable<any> {
+    if (this.isMockMode()) {
+      return of({ success: true, message: 'OTP sent (mock: 123456)' }).pipe(delay(500));
+    }
+    return this.api.post('/auth/send-otp', { phoneNumber, deviceFingerprint });
+  }
+
+  register(phoneNumber: string, password: string, otp: string, email?: string): Observable<any> {
+    if (this.isMockMode()) {
+      return of({ success: true, userId: 'mock-user-id' }).pipe(delay(500));
+    }
+    return this.api.post('/auth/register', {
+      phoneNumber,
+      password,
+      confirmPassword: password,
+      otp,
+      email: email || ''
+    });
   }
 
   private async handleAuthSuccess(data: AuthData): Promise<void> {

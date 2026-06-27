@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" class="back-btn">
+        <ion-icon name="arrow-back-outline" class="back-icon"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">Verification</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="otp-content">
+  <div class="otp-container">
+    <div class="otp-header">
+      <div class="otp-icon">🔐</div>
+      <h2>Enter Verification Code</h2>
+      <p class="otp-sub">We sent a 6-digit code to your phone</p>
+    </div>
+
+    <app-otp
+      [isVisible]="true"
+      [timer]="timer"
+      (otpComplete)="onOtpComplete($event)"
+    ></app-otp>
+
+    <div class="otp-timer" *ngIf="timer > 0">
+      <ion-icon name="time-outline"></ion-icon>
+      Resend in {{ timer }}s
+    </div>
+
+    <ion-button
+      class="verify-btn"
+      expand="block"
+      [disabled]="!otp || isLoading"
+      (click)="verify()"
+    >
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Verify</span>
+    </ion-button>
+
+    <div class="otp-footer">
+      <span>Didn't receive the code?</span>
+      <a (click)="resend()" [class.disabled]="timer > 0">Resend</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ errorMessage }}
+    </div>
+  </div>
+</ion-content>

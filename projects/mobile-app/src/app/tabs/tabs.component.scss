@@ -1,0 +1,178 @@
+@import '../theme/variables';
+@import '../theme/mixins';
+
+.custom-tab-bar {
+  --background: rgba($neutral-800, 0.85);
+  --border-color: rgba($neutral-700, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  height: 72px;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+
+  ion-tab-button {
+    --color: #{$neutral-400};
+    --color-selected: #{$color-primary};
+    --ripple-color: transparent;
+    --background-focused: transparent;
+    --background-hover: transparent;
+    position: relative;
+
+    ion-icon {
+      font-size: 26px;
+      transition: all $transition-fast;
+    }
+
+    ion-label {
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 2px;
+      transition: all $transition-fast;
+    }
+
+    &.tab-selected {
+      ion-icon {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 8px rgba($color-primary, 0.4));
+      }
+      ion-label {
+        color: $color-primary;
+      }
+    }
+  }
+
+  // Face tab – prominent, no label
+  .face-tab {
+    flex: 1;
+    .face-icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tab-scanner-icon {
+      width: 36px;  /* larger than others (26px) */
+      height: 36px;
+      transition: all $transition-fast;
+      display: block;
+
+      rect, line, circle, path {
+        stroke: currentColor;
+      }
+
+      .scan-line-svg {
+        animation: scan-move-svg 1.8s ease-in-out infinite;
+        stroke-width: 4;
+        filter: drop-shadow(0 0 6px rgba(79, 106, 245, 0.8));
+      }
+    }
+
+    &.tab-selected .tab-scanner-icon {
+      transform: translateY(-2px);
+      filter: drop-shadow(0 0 12px rgba(79, 106, 245, 0.6));
+    }
+
+    // Pulse ring – larger, outside the icon, using gradient color
+    .pulse-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(79, 106, 245, 0.3);
+      pointer-events: none;
+      animation: pulse-ring 2s ease-in-out infinite;
+
+      // Gradient border (we can use a pseudo element or keep it solid – we'll make it gradient via conic)
+      &::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        background: conic-gradient(#4F6AF5, #00D4FF, #4F6AF5);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff calc(100% - 1px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff calc(100% - 1px));
+        animation: spin-ring 3s linear infinite;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes spin-ring {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes scan-move-svg {
+  0% { transform: translateY(-14px); opacity: 0.4; }
+  50% { transform: translateY(14px); opacity: 1; }
+  100% { transform: translateY(-14px); opacity: 0.4; }
+}
+
+// Responsive adjustments
+@include mobile-sm {
+  .custom-tab-bar {
+    height: 60px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+
+    ion-tab-button {
+      ion-icon {
+        font-size: 22px;
+      }
+      ion-label {
+        font-size: 10px;
+      }
+    }
+
+    .face-tab .tab-scanner-icon {
+      width: 30px;
+      height: 30px;
+    }
+    .face-tab .pulse-ring {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}
+
+@include mobile-xs {
+  .custom-tab-bar {
+    height: 54px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+
+    ion-tab-button {
+      ion-icon {
+        font-size: 20px;
+      }
+      ion-label {
+        font-size: 9px;
+      }
+    }
+
+    .face-tab .tab-scanner-icon {
+      width: 28px;
+      height: 28px;
+    }
+    .face-tab .pulse-ring {
+      width: 44px;
+      height: 44px;
+    }
+  }
+}
