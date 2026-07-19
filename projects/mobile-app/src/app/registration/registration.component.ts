@@ -4,7 +4,6 @@ import { ModalController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { CountryService, Country } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
-import { DeviceService } from '../core/services/device.service';
 import { CountrySelectorModalComponent } from '../country-selector-modal/country-selector-modal.component';
 import { finalize } from 'rxjs/operators';
 
@@ -40,7 +39,6 @@ export class RegistrationComponent implements OnInit {
     private auth: AuthService,
     private countryService: CountryService,
     private storage: StorageService,
-    private deviceService: DeviceService,
     private modalController: ModalController,
     private router: Router
   ) {}
@@ -167,9 +165,7 @@ export class RegistrationComponent implements OnInit {
     this.isLoading = true;
     this.showMessage('Sending OTP...', 'info');
 
-    const fingerprint = await this.deviceService.getDeviceFingerprint();
-
-    this.auth.sendRegistrationOtp(this.fullPhoneNumber, fingerprint)
+    this.auth.sendRegistrationOtp(this.fullPhoneNumber)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {

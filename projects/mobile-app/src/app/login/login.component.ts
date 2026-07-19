@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { CountryService } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
-import { DeviceService } from '../core/services/device.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -34,7 +33,6 @@ export class LoginComponent implements OnInit {
     private auth: AuthService,
     private countryService: CountryService,
     private storage: StorageService,
-    private deviceService: DeviceService,
     private router: Router
   ) {}
 
@@ -107,9 +105,8 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.showMessage('Sending OTP...', 'info');
 
-    const fingerprint = await this.deviceService.getDeviceFingerprint();
-
-    this.auth.sendLoginOtp(this.fullPhoneNumber, this.password, fingerprint)
+    const otpRequest = await this.auth.sendLoginOtp(this.fullPhoneNumber, this.password);
+    otpRequest
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {

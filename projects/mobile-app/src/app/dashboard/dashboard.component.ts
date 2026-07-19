@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
 
@@ -7,10 +9,24 @@ interface Door {
   id: string;
   name: string;
   home: string;
-  status: 'online' | 'offline' | 'locked';
-  deviceId?: string;
-  mqttTopic?: string;
-  lastActivity: string;  // static – no random generation in template
+  controllerStatus: string;
+  lockStatus: string;
+  requiresFace: boolean;
+  lastActivity: string;
+}
+
+interface HomeDto {
+  id: string;
+  name: string;
+}
+
+interface SmartLockDto {
+  id: string;
+  name: string;
+  controllerStatus: string;
+  status: string;
+  requiresFace: boolean;
+  lastUnlockedAtUtc?: string | null;
 }
 
 @Component({
@@ -20,9 +36,9 @@ interface Door {
 })
 export class DashboardComponent implements OnInit {
   doors: Door[] = [];
-  greeting: string = '';
-  isLoading: boolean = true;
-  errorMessage: string = '';
+  greeting = '';
+  isLoading = true;
+  errorMessage = '';
 
   constructor(
     private auth: AuthService,
@@ -32,10 +48,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const hour = new Date().getHours();
-    if (hour < 12) this.greeting = 'Morning';
-    else if (hour < 17) this.greeting = 'Afternoon';
-    else this.greeting = 'Evening';
-
+    this.greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
     this.loadDoors();
   }
 
@@ -44,24 +57,30 @@ export class DashboardComponent implements OnInit {
     this.errorMessage = '';
 
     if (this.auth.isMockMode()) {
-      // Static lastActivity – generated once per door (no random in template)
       this.doors = [
-        { id: '1', name: 'Front Door', home: 'Main Home', status: 'online', lastActivity: '2 hours ago' },
-        { id: '2', name: 'Back Door', home: 'Main Home', status: 'online', lastActivity: '5 hours ago' },
-        { id: '3', name: 'Office Door', home: 'Work', status: 'offline', lastActivity: '1 day ago' },
-        { id: '4', name: 'Garage Door', home: 'Main Home', status: 'locked', lastActivity: '10 minutes ago' }
+        { id: '1', name: 'Front Door', home: 'Main Home', controllerStatus: 'Online', lockStatus: 'Locked', requiresFace: true, lastActivity: '2 hours ago' },
+        { id: '2', name: 'Back Door', home: 'Main Home', controllerStatus: 'Online', lockStatus: 'Locked', requiresFace: false, lastActivity: '5 hours ago' },
+        { id: '3', name: 'Office Door', home: 'Work', controllerStatus: 'Offline', lockStatus: 'Locked', requiresFace: false, lastActivity: '1 day ago' }
       ];
       this.isLoading = false;
       return;
     }
 
-    // Real API call – lastActivity may come from backend, else use default
-    this.api.get<Door[]>('/devices').subscribe({
+    this.api.get<HomeDto[]>('/homes').pipe(
+      switchMap(homes => {
+        if (homes.length === 0) {
+          return of([] as Door[]);
+        }
+
+        return forkJoin(homes.map(home =>
+          this.api.get<SmartLockDto[]>(`/locks?homeId=${encodeURIComponent(home.id)}`).pipe(
+            map(locks => locks.map(lockItem => this.toDoor(lockItem, home)))
+          )
+        )).pipe(map(groups => groups.flat()));
+      })
+    ).subscribe({
       next: (data) => {
-        this.doors = data.map(door => ({
-          ...door,
-          lastActivity: door.lastActivity || 'Recently'
-        }));
+        this.doors = data;
         this.isLoading = false;
       },
       error: (err) => {
@@ -73,68 +92,77 @@ export class DashboardComponent implements OnInit {
   }
 
   get onlineCount(): number {
-    return this.doors.filter(d => d.status === 'online' || d.status === 'locked').length;
+    return this.doors.filter(door => door.controllerStatus === 'Online').length;
   }
 
   get offlineCount(): number {
-    return this.doors.filter(d => d.status === 'offline').length;
-  }
-
-  // Idempotency key using built‑in crypto (no uuid package)
-  private generateIdempotencyKey(): string {
-    return crypto.randomUUID();
+    return this.doors.filter(door => door.controllerStatus !== 'Online').length;
   }
 
   unlockDoor(doorId: string): void {
-    const door = this.doors.find(d => d.id === doorId);
-    if (!door) return;
+    const door = this.doors.find(item => item.id === doorId);
+    if (!door || !this.canUnlock(door)) return;
 
-    const idempotencyKey = this.generateIdempotencyKey();
-
+    const idempotencyKey = crypto.randomUUID();
     if (this.auth.isMockMode()) {
-      alert(`🔓 Unlocking "${door.name}"...\n\n(Mock mode) Idempotency Key: ${idempotencyKey}`);
+      alert(`Unlock request queued for "${door.name}" (mock mode).`);
       return;
     }
 
-    this.api.post(`/locks/${doorId}/unlock`, { idempotencyKey }).subscribe({
-      next: () => {
-        alert(`✅ Door "${door.name}" unlocked successfully!`);
+    const formData = new FormData();
+    formData.append('idempotencyKey', idempotencyKey);
+    this.api.postMultipart<{ message: string }>(`/locks/${doorId}/unlock`, formData).subscribe({
+      next: (result) => {
+        alert(`Unlock request queued for "${door.name}". ${result.message || 'Controller acknowledgement is pending.'}`);
         this.loadDoors();
       },
       error: (err) => {
-        const msg = err.error?.error || 'Failed to unlock door.';
-        alert(`❌ ${msg}`);
+        alert(err.error?.error || 'Failed to queue the unlock request.');
       }
     });
   }
 
-  // --- Navigation / Actions ---
+  canUnlock(door: Door): boolean {
+    return door.controllerStatus === 'Online' && door.lockStatus !== 'EmergencyLocked';
+  }
+
   logout(): void {
     this.auth.logout();
   }
 
   openSettings(): void {
-    alert('⚙️ Settings page coming soon!');
+    this.router.navigate(['/tabs/profile']);
   }
 
   openNotifications(): void {
-    alert('🔔 Notifications coming soon!');
+    this.router.navigate(['/tabs/notifications']);
   }
 
   viewAllDoors(): void {
-    alert('📋 Viewing all doors...');
-    // Replace with: this.router.navigate(['/doors']);
+    this.router.navigate(['/tabs/devices']);
   }
 
   addDoor(): void {
-    alert('➕ Add new door wizard coming soon!');
+    alert('Controller registration is available from the Devices tab.');
   }
 
   viewAuditLog(): void {
-    alert('📜 Loading audit logs...');
+    alert('Audit history will be available in the web portal and Devices tab.');
   }
 
   showDoorOptions(door: Door): void {
-    alert(`⚙️ Options for "${door.name}"\n\n- Edit\n- View History\n- Delete`);
+    alert(`${door.name}\nController: ${door.controllerStatus}\nLock: ${door.lockStatus}\nFace verification: ${door.requiresFace ? 'required' : 'not required'}`);
+  }
+
+  private toDoor(lockItem: SmartLockDto, home: HomeDto): Door {
+    return {
+      id: lockItem.id,
+      name: lockItem.name,
+      home: home.name,
+      controllerStatus: lockItem.controllerStatus,
+      lockStatus: lockItem.status,
+      requiresFace: lockItem.requiresFace,
+      lastActivity: lockItem.lastUnlockedAtUtc ? new Date(lockItem.lastUnlockedAtUtc).toLocaleString() : 'Never unlocked'
+    };
   }
 }

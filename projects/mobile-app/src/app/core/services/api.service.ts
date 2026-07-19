@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
 import { environment } from './../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  private readonly baseUrl = !environment.production && Capacitor.getPlatform() === 'android'
+    ? environment.androidEmulatorApiUrl
+    : environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -51,7 +51,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     this.otp = typeof otp === 'string' ? otp : '';
   }
 
-  verify() {
+  async verify() {
     if (!this.otp || this.otp.length < 6) {
       this.errorMessage = 'Please enter the complete 6-digit code.';
       return;
@@ -62,7 +62,8 @@ export class OtpPageComponent implements OnInit, OnDestroy {
 
     if (this.isRegistration) {
       // Registration flow
-      this.auth.register(this.phoneNumber, this.password, this.otp, this.email)
+      const registrationRequest = await this.auth.register(this.phoneNumber, this.password, this.otp, this.email);
+      registrationRequest
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
@@ -75,7 +76,8 @@ export class OtpPageComponent implements OnInit, OnDestroy {
         });
     } else {
       // Login flow
-      this.auth.login(this.phoneNumber, this.password, this.otp)
+      const loginRequest = await this.auth.login(this.phoneNumber, this.password, this.otp);
+      loginRequest
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
@@ -89,14 +91,14 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  resend() {
+  async resend() {
     if (this.timer > 0) return;
 
     this.errorMessage = '';
     // For registration or login, use appropriate OTP endpoint
     const obs = this.isRegistration
-      ? this.auth.sendRegistrationOtp(this.phoneNumber, '') // fingerprint optional
-      : this.auth.sendLoginOtp(this.phoneNumber, this.password, '');
+      ? this.auth.sendRegistrationOtp(this.phoneNumber)
+      : await this.auth.sendLoginOtp(this.phoneNumber, this.password);
     obs.subscribe({
       next: () => {
         this.startTimer(60);

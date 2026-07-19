@@ -76,11 +76,11 @@
       </div>
 
       <div class="door-grid">
-        <div class="door-card" *ngFor="let door of doors" [class.offline]="door.status === 'offline'">
+        <div class="door-card" *ngFor="let door of doors" [class.offline]="door.controllerStatus !== 'Online'">
           <div class="door-card-header">
             <div class="door-status">
-              <span class="status-dot" [class.online]="door.status === 'online'" [class.offline]="door.status === 'offline'"></span>
-              <span class="status-label">{{ door.status | titlecase }}</span>
+              <span class="status-dot" [class.online]="door.controllerStatus === 'Online'" [class.offline]="door.controllerStatus !== 'Online'"></span>
+              <span class="status-label">{{ door.controllerStatus }} · {{ door.lockStatus }}</span>
             </div>
             <ion-button fill="clear" class="more-btn" (click)="showDoorOptions(door)">
               <ion-icon name="ellipsis-vertical-outline"></ion-icon>
@@ -89,7 +89,7 @@
 
           <div class="door-card-body">
             <div class="door-icon">
-              <ion-icon [name]="door.status === 'locked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon>
+              <ion-icon [name]="door.lockStatus === 'Locked' || door.lockStatus === 'EmergencyLocked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon>
             </div>
             <div class="door-info">
               <div class="door-name">{{ door.name }}</div>
@@ -104,7 +104,7 @@
             </div>
             <ion-button
               class="unlock-btn"
-              [disabled]="door.status === 'offline'"
+              [disabled]="!canUnlock(door)"
               (click)="unlockDoor(door.id)">
               <ion-icon slot="start" name="key-outline"></ion-icon>
               Unlock

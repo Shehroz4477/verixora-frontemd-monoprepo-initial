@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
+    "@aparajita/capacitor-secure-storage": "^5.2.0",
     "@capacitor-community/bluetooth-le": "3.1.2",
     "@capacitor/camera": "^5.0.10",
     "@capacitor/device": "^5.0.7",

@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap, delay } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
+import { DeviceService } from './device.service';
 import { environment } from './../../../../environments/environment';
 
 interface AuthData {
@@ -20,14 +21,15 @@ export class AuthService {
 
   constructor(
     private api: ApiService,
-    private storage: StorageService,
+    private secureStorage: SecureStorageService,
+    private device: DeviceService,
     private router: Router
   ) {
     this.loadAuthData();
   }
 
   private async loadAuthData(): Promise<void> {
-    const data = await this.storage.get<AuthData>('auth');
+    const data = await this.secureStorage.get<AuthData>('auth');
     if (data && data.expiresAt > Date.now()) {
       this.authData = data;
       this.isLoggedInSubject.next(true);
@@ -40,14 +42,15 @@ export class AuthService {
     return environment.useMock;
   }
 
-  sendLoginOtp(phoneNumber: string, password: string, deviceFingerprint: string): Observable<any> {
+  async sendLoginOtp(phoneNumber: string, password: string): Promise<Observable<any>> {
     if (this.isMockMode()) {
       return of({ success: true, message: 'OTP sent (mock: 123456)' }).pipe(delay(500));
     }
-    return this.api.post('/auth/send-login-otp', { phoneNumber, password, deviceFingerprint });
+    const binding = await this.device.getDeviceBinding();
+    return this.api.post('/auth/send-login-otp', { phoneNumber, password, ...binding });
   }
 
-  login(phoneNumber: string, password: string, otp: string): Observable<any> {
+  async login(phoneNumber: string, password: string, otp: string): Promise<Observable<any>> {
     if (this.isMockMode()) {
       if (otp === '123456') {
         const mockData: AuthData = {
@@ -66,51 +69,55 @@ export class AuthService {
       }
     }
 
+    const binding = await this.device.getDeviceBinding();
     return this.api.post<{ token: string; userId: string }>('/auth/login', {
       phoneNumber,
       password,
-      otp
+      otp,
+      ...binding
     }).pipe(
       tap(async (response) => {
         const authData: AuthData = {
           token: response.token,
           userId: response.userId,
-          expiresAt: Date.now() + 15 * 60 * 1000
+          expiresAt: this.readJwtExpiry(response.token)
         };
         await this.handleAuthSuccess(authData);
       })
     );
   }
 
-  sendRegistrationOtp(phoneNumber: string, deviceFingerprint: string): Observable<any> {
+  sendRegistrationOtp(phoneNumber: string): Observable<any> {
     if (this.isMockMode()) {
       return of({ success: true, message: 'OTP sent (mock: 123456)' }).pipe(delay(500));
     }
-    return this.api.post('/auth/send-otp', { phoneNumber, deviceFingerprint });
+    return this.api.post('/auth/send-otp', { phoneNumber });
   }
 
-  register(phoneNumber: string, password: string, otp: string, email?: string): Observable<any> {
+  async register(phoneNumber: string, password: string, otp: string, email?: string): Promise<Observable<any>> {
     if (this.isMockMode()) {
       return of({ success: true, userId: 'mock-user-id' }).pipe(delay(500));
     }
+    const binding = await this.device.getDeviceBinding();
     return this.api.post('/auth/register', {
       phoneNumber,
       password,
       confirmPassword: password,
       otp,
-      email: email || ''
+      email: email || '',
+      ...binding
     });
   }
 
   private async handleAuthSuccess(data: AuthData): Promise<void> {
     this.authData = data;
-    await this.storage.set('auth', data);
+    await this.secureStorage.set('auth', data);
     this.isLoggedInSubject.next(true);
   }
 
   async logout(): Promise<void> {
     this.authData = null;
-    await this.storage.remove('auth');
+    await this.secureStorage.remove('auth');
     this.isLoggedInSubject.next(false);
     this.router.navigate(['/login']);
   }
@@ -130,5 +137,14 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  private readJwtExpiry(token: string): number {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : Date.now() + 15 * 60 * 1000;
+    } catch {
+      return Date.now() + 15 * 60 * 1000;
+    }
   }
 }
