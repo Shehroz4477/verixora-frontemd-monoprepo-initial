@@ -34,6 +34,7 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [{ "replace": "projects/web-portal/src/environments/environment.ts", "with": "projects/web-portal/src/environments/environment.prod.ts" }],
               "budgets": [
                 {
                   "type": "initial",

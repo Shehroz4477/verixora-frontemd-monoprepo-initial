@@ -1,0 +1,14 @@
+.dashboard-shell { max-width: 72rem; margin: auto; padding: 2rem 1.25rem 4rem; color: #18303e; }
+header, .toolbar, .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+header { border-bottom: 1px solid #d8e1e5; padding-bottom: 1.25rem; }
+.eyebrow { margin: 0; color: #126e82; font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+h1 { margin: .3rem 0 0; } h2 { margin: 0; font-size: 1.2rem; } h3 { font-size: 1.05rem; }
+.logout { border: 1px solid #126e82; color: #126e82; background: #fff; border-radius: .4rem; padding: .55rem .8rem; }
+.toolbar { margin: 1.5rem 0; justify-content: flex-start; } select { min-width: 15rem; padding: .5rem; border: 1px solid #b8c8ce; border-radius: .35rem; }
+.panel { margin-top: 1.25rem; padding: 1.25rem; background: #fff; border: 1px solid #d8e1e5; border-radius: .7rem; box-shadow: 0 .2rem .75rem rgba(16,48,63,.05); }
+.panel-heading { margin-bottom: 1rem; } .panel-heading span, small { color: #657782; }
+.lock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 1rem; }
+.lock { border: 1px solid #e0e8eb; border-radius: .55rem; padding: 1rem; } .lock p { margin: .5rem 0; }
+.online, .success { color: #087443; } .failure, .error { color: #b42318; }
+.audit-row { display: grid; grid-template-columns: 5rem 11rem 1fr; gap: .5rem 1rem; padding: .8rem 0; border-top: 1px solid #edf1f3; } .audit-row p { grid-column: 2 / -1; margin: 0; color: #5f6c73; }
+time { color: #657782; } @media (max-width: 42rem) { .audit-row { grid-template-columns: 1fr; } .audit-row p { grid-column: auto; } }
