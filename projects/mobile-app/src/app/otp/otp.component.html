@@ -1,17 +1,20 @@
-<div *ngIf="isVisible" class="otp-section">
-  <div class="otp-boxes">
-    <input
-      *ngFor="let _ of [].constructor(6); let i = index"
-      type="text"
-      maxlength="1"
-      class="otp-digit"
-      [(ngModel)]="digits[i]"
-      (input)="onInput($event, i)"
-      (keydown)="onKeydown($event, i)"
-      #otpInput
-      [autofocus]="i === 0"
-      inputmode="numeric"
-      [class.filled]="digits[i]"
-    />
+@if (isVisible) {
+  <div class="otp-section">
+    <div class="otp-boxes">
+      @for (_ of [].constructor(6); track _; let i = $index) {
+        <input
+          type="text"
+          maxlength="1"
+          class="otp-digit"
+          [(ngModel)]="digits[i]"
+          (input)="onInput($event, i)"
+          (keydown)="onKeydown($event, i)"
+          #otpInput
+          [autofocus]="i === 0"
+          inputmode="numeric"
+          [class.filled]="digits[i]"
+          />
+      }
+    </div>
   </div>
-</div>
+}

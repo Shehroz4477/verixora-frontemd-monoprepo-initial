@@ -19,7 +19,7 @@
             lines="none"
             [class.error]="phoneTouched && !isPhoneValid"
             [class.valid]="phoneTouched && isPhoneValid"
-          >
+            >
             <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
             <ion-input
               type="tel"
@@ -30,31 +30,39 @@
               (ionBlur)="phoneTouched = true"
               class="input-field"
             ></ion-input>
-            <ion-icon
-              *ngIf="phoneTouched && isPhoneValid"
-              name="checkmark-circle-outline"
-              slot="end"
-              class="valid-icon"
-            ></ion-icon>
-            <ion-icon
-              *ngIf="phoneTouched && phoneError"
-              name="alert-circle-outline"
-              slot="end"
-              class="error-icon"
-            ></ion-icon>
+            @if (phoneTouched && isPhoneValid) {
+              <ion-icon
+                name="checkmark-circle-outline"
+                slot="end"
+                class="valid-icon"
+              ></ion-icon>
+            }
+            @if (phoneTouched && phoneError) {
+              <ion-icon
+                name="alert-circle-outline"
+                slot="end"
+                class="error-icon"
+              ></ion-icon>
+            }
           </ion-item>
-          <div *ngIf="phoneTouched && phoneError" class="validation-error">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            {{ phoneError }}
-          </div>
-          <div class="phone-hint" *ngIf="isPhoneReadOnly">
-            <ion-icon name="lock-closed-outline"></ion-icon>
-            This device is registered to {{ phoneNumber }}
-          </div>
-          <div class="phone-hint" *ngIf="!isPhoneReadOnly">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            Country code auto-detected ({{ dialCode }})
-          </div>
+          @if (phoneTouched && phoneError) {
+            <div class="validation-error">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              {{ phoneError }}
+            </div>
+          }
+          @if (isPhoneReadOnly) {
+            <div class="phone-hint">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              This device is registered to {{ phoneNumber }}
+            </div>
+          }
+          @if (!isPhoneReadOnly) {
+            <div class="phone-hint">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Country code auto-detected ({{ dialCode }})
+            </div>
+          }
         </div>
 
         <!-- Password -->
@@ -64,7 +72,7 @@
             lines="none"
             [class.error]="passwordTouched && !isPasswordValid"
             [class.valid]="passwordTouched && isPasswordValid"
-          >
+            >
             <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
             <ion-input
               type="password"
@@ -74,43 +82,47 @@
               (ionBlur)="passwordTouched = true"
               class="input-field"
             ></ion-input>
-            <ion-icon
-              *ngIf="passwordTouched && isPasswordValid"
-              name="checkmark-circle-outline"
-              slot="end"
-              class="valid-icon"
-            ></ion-icon>
-            <ion-icon
-              *ngIf="passwordTouched && passwordError"
-              name="alert-circle-outline"
-              slot="end"
-              class="error-icon"
-            ></ion-icon>
+            @if (passwordTouched && isPasswordValid) {
+              <ion-icon
+                name="checkmark-circle-outline"
+                slot="end"
+                class="valid-icon"
+              ></ion-icon>
+            }
+            @if (passwordTouched && passwordError) {
+              <ion-icon
+                name="alert-circle-outline"
+                slot="end"
+                class="error-icon"
+              ></ion-icon>
+            }
           </ion-item>
 
           <!-- Password Strength Checklist -->
-          <div *ngIf="passwordTouched" class="password-checklist">
-            <div class="check-item" [class.passed]="passwordChecks.minLength">
-              <ion-icon [name]="passwordChecks.minLength ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
-              <span>At least 8 characters</span>
+          @if (passwordTouched) {
+            <div class="password-checklist">
+              <div class="check-item" [class.passed]="passwordChecks.minLength">
+                <ion-icon [name]="passwordChecks.minLength ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
+                <span>At least 8 characters</span>
+              </div>
+              <div class="check-item" [class.passed]="passwordChecks.hasUppercase">
+                <ion-icon [name]="passwordChecks.hasUppercase ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
+                <span>One uppercase letter</span>
+              </div>
+              <div class="check-item" [class.passed]="passwordChecks.hasLowercase">
+                <ion-icon [name]="passwordChecks.hasLowercase ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
+                <span>One lowercase letter</span>
+              </div>
+              <div class="check-item" [class.passed]="passwordChecks.hasNumber">
+                <ion-icon [name]="passwordChecks.hasNumber ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
+                <span>One number</span>
+              </div>
+              <div class="check-item" [class.passed]="passwordChecks.hasSpecialChar">
+                <ion-icon [name]="passwordChecks.hasSpecialChar ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
+                <span>One special character</span>
+              </div>
             </div>
-            <div class="check-item" [class.passed]="passwordChecks.hasUppercase">
-              <ion-icon [name]="passwordChecks.hasUppercase ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
-              <span>One uppercase letter</span>
-            </div>
-            <div class="check-item" [class.passed]="passwordChecks.hasLowercase">
-              <ion-icon [name]="passwordChecks.hasLowercase ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
-              <span>One lowercase letter</span>
-            </div>
-            <div class="check-item" [class.passed]="passwordChecks.hasNumber">
-              <ion-icon [name]="passwordChecks.hasNumber ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
-              <span>One number</span>
-            </div>
-            <div class="check-item" [class.passed]="passwordChecks.hasSpecialChar">
-              <ion-icon [name]="passwordChecks.hasSpecialChar ? 'checkmark-circle-outline' : 'radio-button-off-outline'"></ion-icon>
-              <span>One special character</span>
-            </div>
-          </div>
+          }
         </div>
 
         <!-- Continue Button -->
@@ -119,9 +131,13 @@
           expand="block"
           (click)="sendOtp()"
           [disabled]="isLoading"
-        >
-          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-          <span *ngIf="!isLoading">Continue</span>
+          >
+          @if (isLoading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          }
+          @if (!isLoading) {
+            <span>Continue</span>
+          }
         </ion-button>
 
         <!-- Footer -->
@@ -130,12 +146,14 @@
         </div>
 
         <!-- Message -->
-        <div *ngIf="message" class="message" [class]="messageType">
-          <ion-icon
-            [name]="messageType === 'error' ? 'alert-circle-outline' : messageType === 'success' ? 'checkmark-circle-outline' : 'information-circle-outline'"
-          ></ion-icon>
-          {{ message }}
-        </div>
+        @if (message) {
+          <div class="message" [class]="messageType">
+            <ion-icon
+              [name]="messageType === 'error' ? 'alert-circle-outline' : messageType === 'success' ? 'checkmark-circle-outline' : 'information-circle-outline'"
+            ></ion-icon>
+            {{ message }}
+          </div>
+        }
 
       </div>
     </div>

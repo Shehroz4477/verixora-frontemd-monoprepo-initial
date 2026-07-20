@@ -4,42 +4,58 @@
     <button class="logout" (click)="logout()">Sign out</button>
   </header>
 
-  <section class="toolbar" *ngIf="homes.length">
-    <label for="home">Home</label>
-    <select id="home" [(ngModel)]="selectedHomeId" (change)="loadSelectedHome()">
-      <option *ngFor="let home of homes" [value]="home.id">{{ home.name }} · {{ home.role }}</option>
-    </select>
-  </section>
+  @if (homes.length) {
+    <section class="toolbar">
+      <label for="home">Home</label>
+      <select id="home" [(ngModel)]="selectedHomeId" (change)="loadSelectedHome()">
+        @for (home of homes; track home) {
+          <option [value]="home.id">{{ home.name }} · {{ home.role }}</option>
+        }
+      </select>
+    </section>
+  }
 
-  <p *ngIf="error" class="error" role="alert">{{ error }}</p>
-  <p *ngIf="loading">Loading protected monitoring data…</p>
-  <p *ngIf="!loading && !homes.length">No home is assigned to this portal user.</p>
+  @if (error) {
+    <p class="error" role="alert">{{ error }}</p>
+  }
+  @if (loading) {
+    <p>Loading protected monitoring data…</p>
+  }
+  @if (!loading && !homes.length) {
+    <p>No home is assigned to this portal user.</p>
+  }
 
-  <ng-container *ngIf="!loading && selectedHomeId">
+  @if (!loading && selectedHomeId) {
     <section class="panel">
       <div class="panel-heading"><h2>Door controllers</h2><span>{{ locks.length }} registered</span></div>
       <div class="lock-grid">
-        <article class="lock" *ngFor="let lock of locks">
-          <h3>{{ lock.name }}</h3>
-          <p><strong>Lock:</strong> {{ lock.status }}</p>
-          <p><strong>Controller:</strong> <span [class.online]="lock.controllerStatus === 'Online'">{{ lock.controllerStatus }}</span></p>
-          <p><strong>Face required:</strong> {{ lock.requiresFace ? 'Yes' : 'No' }}</p>
-          <small>Last unlock: {{ lock.lastUnlockedAtUtc ? (lock.lastUnlockedAtUtc | date:'medium') : 'Never' }}</small>
-        </article>
+        @for (lock of locks; track lock) {
+          <article class="lock">
+            <h3>{{ lock.name }}</h3>
+            <p><strong>Lock:</strong> {{ lock.status }}</p>
+            <p><strong>Controller:</strong> <span [class.online]="lock.controllerStatus === 'Online'">{{ lock.controllerStatus }}</span></p>
+            <p><strong>Face required:</strong> {{ lock.requiresFace ? 'Yes' : 'No' }}</p>
+            <small>Last unlock: {{ lock.lastUnlockedAtUtc ? (lock.lastUnlockedAtUtc | date:'medium') : 'Never' }}</small>
+          </article>
+        }
       </div>
     </section>
-
     <section class="panel">
       <div class="panel-heading"><h2>Audit trail</h2><span>Newest events</span></div>
-      <div class="audit" *ngIf="auditLogs.length; else noAudit">
-        <div class="audit-row" *ngFor="let log of auditLogs">
-          <span [class.success]="log.result" [class.failure]="!log.result">{{ log.result ? 'Allowed' : 'Rejected' }}</span>
-          <strong>{{ log.action }}</strong>
-          <time>{{ log.timestampUtc | date:'medium' }}</time>
-          <p>{{ log.details || 'No additional detail.' }}</p>
+      @if (auditLogs.length) {
+        <div class="audit">
+          @for (log of auditLogs; track log) {
+            <div class="audit-row">
+              <span [class.success]="log.result" [class.failure]="!log.result">{{ log.result ? 'Allowed' : 'Rejected' }}</span>
+              <strong>{{ log.action }}</strong>
+              <time>{{ log.timestampUtc | date:'medium' }}</time>
+              <p>{{ log.details || 'No additional detail.' }}</p>
+            </div>
+          }
         </div>
-      </div>
-      <ng-template #noAudit><p>No events recorded for this home.</p></ng-template>
+      } @else {
+        <p>No events recorded for this home.</p>
+      }
     </section>
-  </ng-container>
+  }
 </main>

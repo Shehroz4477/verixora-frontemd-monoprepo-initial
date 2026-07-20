@@ -11,12 +11,14 @@
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" [(ngModel)]="password" required [disabled]="loading || otpRequested">
 
-      <ng-container *ngIf="otpRequested">
+      @if (otpRequested) {
         <label for="otp">Email OTP</label>
         <input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" [(ngModel)]="otp" required [disabled]="loading">
-      </ng-container>
+      }
 
-      <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+      @if (error) {
+        <p class="error" role="alert">{{ error }}</p>
+      }
       <button type="submit" [disabled]="loading || !form.valid || (otpRequested && otp.length !== 6)">
         {{ loading ? 'Please wait…' : (otpRequested ? 'Sign in securely' : 'Send email OTP') }}
       </button>
