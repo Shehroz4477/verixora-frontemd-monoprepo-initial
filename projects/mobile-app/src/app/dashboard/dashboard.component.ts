@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
@@ -99,7 +100,7 @@ export class DashboardComponent implements OnInit {
     return this.doors.filter(door => door.controllerStatus !== 'Online').length;
   }
 
-  unlockDoor(doorId: string): void {
+  async unlockDoor(doorId: string): Promise<void> {
     const door = this.doors.find(item => item.id === doorId);
     if (!door || !this.canUnlock(door)) return;
 
@@ -111,6 +112,24 @@ export class DashboardComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('idempotencyKey', idempotencyKey);
+    if (door.requiresFace) {
+      try {
+        const image = await Camera.getPhoto({
+          quality: 80,
+          allowEditing: false,
+          resultType: CameraResultType.Base64,
+          source: CameraSource.Camera
+        });
+        if (!image.base64String) {
+          alert('A face capture is required to unlock this door.');
+          return;
+        }
+        formData.append('faceImage', this.base64toBlob(image.base64String), 'unlock-face.jpg');
+      } catch {
+        alert('Face capture was cancelled. The door remains locked.');
+        return;
+      }
+    }
     this.api.postMultipart<{ message: string }>(`/locks/${doorId}/unlock`, formData).subscribe({
       next: (result) => {
         alert(`Unlock request queued for "${door.name}". ${result.message || 'Controller acknowledgement is pending.'}`);
@@ -164,5 +183,12 @@ export class DashboardComponent implements OnInit {
       requiresFace: lockItem.requiresFace,
       lastActivity: lockItem.lastUnlockedAtUtc ? new Date(lockItem.lastUnlockedAtUtc).toLocaleString() : 'Never unlocked'
     };
+  }
+
+  private base64toBlob(base64: string): Blob {
+    const bytes = atob(base64);
+    const values = new Uint8Array(bytes.length);
+    for (let index = 0; index < bytes.length; index++) values[index] = bytes.charCodeAt(index);
+    return new Blob([values], { type: 'image/jpeg' });
   }
 }

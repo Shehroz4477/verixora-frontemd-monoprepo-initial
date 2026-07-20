@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-face-enrollment-modal',
@@ -15,13 +15,11 @@ export class FaceEnrollmentModalComponent implements OnInit {
   isComplete: boolean = false;
   error: string = '';
   corners = [1, 2, 3, 4];
-  private capturedPhotos: string[] = [];
-  private maxAttempts = 8;
+  private readonly requiredFrames = 3;
 
   constructor(
     private modalController: ModalController,
-    private api: ApiService,
-    private auth: AuthService
+    private api: ApiService
   ) {}
 
   ngOnInit() {
@@ -29,19 +27,10 @@ export class FaceEnrollmentModalComponent implements OnInit {
   }
 
   private async startEnrollment() {
-    const userId = this.auth.getUserId();
-    if (!userId) {
-      this.error = 'User not authenticated.';
-      return;
-    }
-
-    let attempt = 0;
-    let enrolled = false;
-
-    while (!enrolled && attempt < this.maxAttempts) {
-      attempt++;
-      this.statusMessage = `Scanning (${attempt})...`;
-      this.progress = (attempt / this.maxAttempts) * 100;
+    const photos: string[] = [];
+    for (let index = 0; index < this.requiredFrames; index++) {
+      this.statusMessage = `Capture ${index + 1} of ${this.requiredFrames}`;
+      this.progress = (index / this.requiredFrames) * 100;
 
       let image;
       try {
@@ -58,34 +47,24 @@ export class FaceEnrollmentModalComponent implements OnInit {
       }
 
       if (image?.base64String) {
-        this.capturedPhotos.push(image.base64String);
-        const formData = new FormData();
-        formData.append('userId', userId);
-        formData.append('image', this.base64toBlob(image.base64String), 'face.jpg');
-
-        try {
-          const response = await this.api.postMultipart('/face/enroll', formData).toPromise() as any;
-          if (response.status === 'enrolled') {
-            enrolled = true;
-            this.isComplete = true;
-            this.progress = 100;
-            this.statusMessage = 'Enrolled!';
-            break;
-          } else if (response.status === 'need_more') {
-            // Continue loop
-          } else {
-            this.error = 'Unexpected response from server.';
-            return;
-          }
-        } catch (err) {
-          this.error = 'Enrollment failed. Please try again.';
-          return;
-        }
+        photos.push(image.base64String);
       }
     }
 
-    if (!enrolled && !this.isComplete) {
-      this.error = 'Could not enroll face. Please try again.';
+    if (photos.length !== this.requiredFrames) {
+      this.error = 'Three clear face captures are required.';
+      return;
+    }
+
+    const formData = new FormData();
+    photos.forEach((photo, index) => formData.append('images', this.base64toBlob(photo), `face-${index + 1}.jpg`));
+    try {
+      await firstValueFrom(this.api.postMultipart<{ status: string }>('/face/enroll', formData));
+      this.isComplete = true;
+      this.progress = 100;
+      this.statusMessage = 'Face enrolled';
+    } catch (err: any) {
+      this.error = err?.error?.error || 'Enrollment failed. Please try again.';
     }
   }
 
