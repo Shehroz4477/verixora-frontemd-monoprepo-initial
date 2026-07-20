@@ -64,6 +64,17 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/web-portal/tsconfig.spec.json",
+            "assets": ["projects/web-portal/src/favicon.ico", "projects/web-portal/src/assets"],
+            "styles": ["projects/web-portal/src/styles.scss"],
+            "scripts": [],
+            "include": ["projects/web-portal/src/app/core/**/*.spec.ts"]
+          }
         }
       }
     },
@@ -142,6 +153,32 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/mobile-app/tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/mobile-app/src/theme"]
+            },
+            "assets": ["projects/mobile-app/src/favicon.ico", "projects/mobile-app/src/assets"],
+            "styles": [
+              "node_modules/@ionic/core/css/core.css",
+              "node_modules/@ionic/core/css/normalize.css",
+              "node_modules/@ionic/core/css/structure.css",
+              "node_modules/@ionic/core/css/typography.css",
+              "node_modules/@ionic/core/css/padding.css",
+              "node_modules/@ionic/core/css/float-elements.css",
+              "node_modules/@ionic/core/css/text-alignment.css",
+              "node_modules/@ionic/core/css/text-transformation.css",
+              "node_modules/@ionic/core/css/flex-utils.css",
+              "projects/mobile-app/src/theme/variables.scss",
+              "projects/mobile-app/src/styles.scss"
+            ],
+            "scripts": [],
+            "include": ["projects/mobile-app/src/app/core/**/*.spec.ts"]
+          }
         }
       }
     },

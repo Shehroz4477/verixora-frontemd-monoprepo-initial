@@ -7,7 +7,9 @@
     "start:mobile": "ng serve mobile-app --port=4300",
     "build:web": "ng build web-portal",
     "build:mobile": "ng build mobile-app",
-    "build:shared": "ng build shared"
+    "build:shared": "ng build shared",
+    "test:mobile": "ng test mobile-app --watch=false --browsers=ChromeHeadless",
+    "test:web": "ng test web-portal --watch=false --browsers=ChromeHeadless"
   },
   "private": true,
   "dependencies": {

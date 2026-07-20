@@ -83,6 +83,10 @@ coverage/
 *.spec.ts
 *.spec.js
 
+# Verixora security tests are source code and must remain version controlled.
+!projects/mobile-app/src/app/core/**/*.spec.ts
+!projects/web-portal/src/app/core/**/*.spec.ts
+
 #-------------------------------------------------------------
 # Temporary files / cache
 #-------------------------------------------------------------

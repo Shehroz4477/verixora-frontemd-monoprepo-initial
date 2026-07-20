@@ -1,0 +1,32 @@
+name: Frontend CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:mobile
+      - run: npm run test:web
+      - run: npm run build:shared
+      - run: npm run build:web
+      - run: npm run build:mobile
+      - run: npx cap sync android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '17'
+      - run: ./gradlew assembleDebug --no-daemon
+        working-directory: android
