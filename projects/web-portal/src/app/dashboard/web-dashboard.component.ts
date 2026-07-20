@@ -9,9 +9,10 @@ interface Lock { id: string; name: string; status: string; controllerStatus: str
 interface AuditLog { id: string; action: string; timestampUtc: string; result: boolean; details?: string | null; }
 
 @Component({
-  selector: 'app-web-dashboard',
-  templateUrl: './web-dashboard.component.html',
-  styleUrls: ['./web-dashboard.component.scss']
+    selector: 'app-web-dashboard',
+    templateUrl: './web-dashboard.component.html',
+    styleUrls: ['./web-dashboard.component.scss'],
+    standalone: false
 })
 export class WebDashboardComponent implements OnInit, OnDestroy {
   homes: Home[] = [];

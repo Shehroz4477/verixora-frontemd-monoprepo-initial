@@ -5,9 +5,10 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
 
 @Component({
-  selector: 'app-face-enrollment-modal',
-  templateUrl: './face-enrollment-modal.component.html',
-  styleUrls: ['./face-enrollment-modal.component.scss']
+    selector: 'app-face-enrollment-modal',
+    templateUrl: './face-enrollment-modal.component.html',
+    styleUrls: ['./face-enrollment-modal.component.scss'],
+    standalone: false
 })
 export class FaceEnrollmentModalComponent implements OnInit {
   statusMessage: string = 'Scanning face...';

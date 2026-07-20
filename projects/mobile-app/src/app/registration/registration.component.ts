@@ -8,9 +8,10 @@ import { CountrySelectorModalComponent } from '../country-selector-modal/country
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-registration',
-  templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.scss']
+    selector: 'app-registration',
+    templateUrl: './registration.component.html',
+    styleUrls: ['./registration.component.scss'],
+    standalone: false
 })
 export class RegistrationComponent implements OnInit {
   phoneNumber: string = '';

@@ -3,9 +3,10 @@ import { ModalController } from '@ionic/angular';
 import { Country, CountryService } from '../core/services/country.service';
 
 @Component({
-  selector: 'app-country-selector-modal',
-  templateUrl: './country-selector-modal.component.html',
-  styleUrls: ['./country-selector-modal.component.scss']
+    selector: 'app-country-selector-modal',
+    templateUrl: './country-selector-modal.component.html',
+    styleUrls: ['./country-selector-modal.component.scss'],
+    standalone: false
 })
 export class CountrySelectorModalComponent implements OnInit {
   countries: Country[] = [];

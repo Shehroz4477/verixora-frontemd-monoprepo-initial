@@ -5,9 +5,10 @@ import { StorageService } from '../core/services/storage.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-otp-page',
-  templateUrl: './otp-page.component.html',
-  styleUrls: ['./otp-page.component.scss']
+    selector: 'app-otp-page',
+    templateUrl: './otp-page.component.html',
+    styleUrls: ['./otp-page.component.scss'],
+    standalone: false
 })
 export class OtpPageComponent implements OnInit, OnDestroy {
   timer: number = 0;

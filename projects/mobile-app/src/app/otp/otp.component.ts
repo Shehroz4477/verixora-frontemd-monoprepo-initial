@@ -2,16 +2,17 @@ import { Component, EventEmitter, Input, Output, ViewChildren, ElementRef, Query
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-otp',
-  templateUrl: './otp.component.html',
-  styleUrls: ['./otp.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => OtpComponent),
-      multi: true
-    }
-  ]
+    selector: 'app-otp',
+    templateUrl: './otp.component.html',
+    styleUrls: ['./otp.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => OtpComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class OtpComponent implements ControlValueAccessor {
   @Input() timer: number = 0;

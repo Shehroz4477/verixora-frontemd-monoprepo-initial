@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'vx-shared',
-  standalone: true,
-  imports: [],
-  template: `
+    selector: 'vx-shared',
+    imports: [],
+    template: `
     <p>
       shared works!
     </p>
   `,
-  styles: ``
+    styles: ``
 })
 export class SharedComponent {
 

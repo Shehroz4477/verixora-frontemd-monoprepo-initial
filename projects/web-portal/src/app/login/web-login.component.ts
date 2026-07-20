@@ -3,9 +3,10 @@ import { Router } from '@angular/router';
 import { WebAuthService } from '../core/web-auth.service';
 
 @Component({
-  selector: 'app-web-login',
-  templateUrl: './web-login.component.html',
-  styleUrls: ['./web-login.component.scss']
+    selector: 'app-web-login',
+    templateUrl: './web-login.component.html',
+    styleUrls: ['./web-login.component.scss'],
+    standalone: false
 })
 export class WebLoginComponent {
   email = '';

@@ -5,9 +5,10 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
 
 @Component({
-  selector: 'app-face-enrollment',
-  templateUrl: './face-enrollment.component.html',
-  styleUrls: ['./face-enrollment.component.scss']
+    selector: 'app-face-enrollment',
+    templateUrl: './face-enrollment.component.html',
+    styleUrls: ['./face-enrollment.component.scss'],
+    standalone: false
 })
 export class FaceEnrollmentComponent implements OnInit, OnDestroy {
   statusMessage: string = 'Scanning face...';
