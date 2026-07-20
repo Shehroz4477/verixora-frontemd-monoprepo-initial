@@ -2,7 +2,8 @@
 // VERIXORA MIXINS
 // ========================================
 
-@import 'variables';
+@forward 'variables';
+@use 'variables' as *;
 
 // ----------------------------------------
 // Flexbox

@@ -1,5 +1,5 @@
-@import 'variables';
-@import 'mixins';
+@use 'variables' as *;
+@use 'mixins' as *;
 
 .register-content {
   --background: #{$neutral-900};

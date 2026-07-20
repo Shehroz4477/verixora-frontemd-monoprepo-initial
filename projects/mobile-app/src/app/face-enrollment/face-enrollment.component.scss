@@ -1,5 +1,5 @@
-@import '../theme/variables';
-@import '../theme/mixins';
+@use '../theme/variables' as *;
+@use '../theme/mixins' as *;
 
 .enrollment-content {
   --background: rgba(#0B1120, 0.95);
