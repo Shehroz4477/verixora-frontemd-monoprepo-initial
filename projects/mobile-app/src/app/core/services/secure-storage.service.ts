@@ -15,25 +15,26 @@ export class SecureStorageService {
 
   async set<T>(key: string, value: T): Promise<void> {
     const serialized = JSON.stringify(value);
+    const storageKey = this.getKey(key);
 
-    if (Capacitor.isNativePlatform()) {
-      await SecureStorage.setItem(this.getKey(key), serialized);
+    if (this.useNativeStorage()) {
+      await this.writeNative(storageKey, serialized);
       return;
     }
 
     this.ensureBrowserIsDevelopmentOnly();
-    await Preferences.set({ key: this.getKey(key), value: serialized });
+    await this.writeBrowser(storageKey, serialized);
   }
 
   async get<T>(key: string): Promise<T | null> {
     let serialized: string | null;
+    const storageKey = this.getKey(key);
 
-    if (Capacitor.isNativePlatform()) {
-      serialized = await SecureStorage.getItem(this.getKey(key));
+    if (this.useNativeStorage()) {
+      serialized = await this.readNative(storageKey);
     } else {
       this.ensureBrowserIsDevelopmentOnly();
-      const result = await Preferences.get({ key: this.getKey(key) });
-      serialized = result.value;
+      serialized = await this.readBrowser(storageKey);
     }
 
     if (!serialized) {
@@ -49,12 +50,41 @@ export class SecureStorageService {
   }
 
   async remove(key: string): Promise<void> {
-    if (Capacitor.isNativePlatform()) {
-      await SecureStorage.removeItem(this.getKey(key));
+    const storageKey = this.getKey(key);
+    if (this.useNativeStorage()) {
+      await this.removeNative(storageKey);
       return;
     }
 
-    await Preferences.remove({ key: this.getKey(key) });
+    await this.removeBrowser(storageKey);
+  }
+
+  protected useNativeStorage(): boolean {
+    return Capacitor.isNativePlatform();
+  }
+
+  protected writeNative(key: string, value: string): Promise<void> {
+    return SecureStorage.setItem(key, value);
+  }
+
+  protected readNative(key: string): Promise<string | null> {
+    return SecureStorage.getItem(key);
+  }
+
+  protected removeNative(key: string): Promise<void> {
+    return SecureStorage.removeItem(key);
+  }
+
+  protected writeBrowser(key: string, value: string): Promise<void> {
+    return Preferences.set({ key, value });
+  }
+
+  protected async readBrowser(key: string): Promise<string | null> {
+    return (await Preferences.get({ key })).value;
+  }
+
+  protected removeBrowser(key: string): Promise<void> {
+    return Preferences.remove({ key });
   }
 
   private getKey(key: string): string {
