@@ -1,36 +1,39 @@
 import { Injectable } from '@angular/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import { StorageService } from './storage.service';
-import { SecureStorageService } from './secure-storage.service';
+import { environment } from './../../../../environments/environment';
+
+interface AndroidDeviceKeyPlugin {
+  getOrCreateKey(): Promise<{ publicKeySpkiBase64: string; fingerprint: string; hardwareBacked: boolean }>;
+  sign(options: { payload: string }): Promise<{ signatureBase64: string }>;
+}
+
+const AndroidDeviceKey = registerPlugin<AndroidDeviceKeyPlugin>('VerixoraDeviceKey');
 
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
-  private bindingKey = 'device_binding_key';
-  private installationKey = 'device_installation_id';
+  async getDeviceBinding(): Promise<{ deviceId: string; deviceFingerprint: string; devicePublicKeySpkiBase64: string }> {
+    if (Capacitor.getPlatform() !== 'android') {
+      throw new Error(environment.production
+        ? 'A production account must be registered from the Android application.'
+        : 'Use the Android emulator or device to test cryptographic device binding.');
+    }
 
-  constructor(
-    private storage: StorageService,
-    private secureStorage: SecureStorageService
-  ) {}
+    const [nativeId, key] = await Promise.all([Device.getId(), AndroidDeviceKey.getOrCreateKey()]);
+    if (!nativeId.identifier) throw new Error('Android device identifier is unavailable.');
+    if (!key.hardwareBacked && environment.production) {
+      throw new Error('This device does not provide a hardware-backed Android Keystore key.');
+    }
 
-  async getDeviceBinding(): Promise<{ deviceId: string; deviceFingerprint: string }> {
-    const [nativeId, storedKey, storedInstallation] = await Promise.all([
-      Device.getId(),
-      this.secureStorage.get<string>(this.bindingKey),
-      this.storage.get<string>(this.installationKey)
-    ]);
-    const deviceId = nativeId.identifier || storedInstallation || crypto.randomUUID();
-    const deviceFingerprint = storedKey || this.createBindingKey();
-
-    await Promise.all([
-      this.storage.set(this.installationKey, deviceId),
-      this.secureStorage.set(this.bindingKey, deviceFingerprint)
-    ]);
-    return { deviceId, deviceFingerprint };
+    return {
+      deviceId: nativeId.identifier,
+      deviceFingerprint: key.fingerprint,
+      devicePublicKeySpkiBase64: key.publicKeySpkiBase64
+    };
   }
 
-  private createBindingKey(): string {
-    const bytes = crypto.getRandomValues(new Uint8Array(32));
-    return Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+  async signPresencePayload(payload: string): Promise<string> {
+    if (Capacitor.getPlatform() !== 'android') throw new Error('Nearby-door proof requires the Android application.');
+    return (await AndroidDeviceKey.sign({ payload })).signatureBase64;
   }
 }

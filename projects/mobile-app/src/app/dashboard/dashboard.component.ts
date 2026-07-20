@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { forkJoin, of } from 'rxjs';
+import { firstValueFrom, forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
+import { NearbyPresenceService } from '../core/services/nearby-presence.service';
 
 interface Door {
   id: string;
@@ -30,6 +31,12 @@ interface SmartLockDto {
   lastUnlockedAtUtc?: string | null;
 }
 
+interface UnlockResponse {
+  success: boolean;
+  message: string;
+  commandId?: string | null;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -44,7 +51,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private api: ApiService,
-    private router: Router
+    private router: Router,
+    private nearbyPresence: NearbyPresenceService
   ) {}
 
   ngOnInit(): void {
@@ -130,15 +138,15 @@ export class DashboardComponent implements OnInit {
         return;
       }
     }
-    this.api.postMultipart<{ message: string }>(`/locks/${doorId}/unlock`, formData).subscribe({
-      next: (result) => {
-        alert(`Unlock request queued for "${door.name}". ${result.message || 'Controller acknowledgement is pending.'}`);
-        this.loadDoors();
-      },
-      error: (err) => {
-        alert(err.error?.error || 'Failed to queue the unlock request.');
-      }
-    });
+    try {
+      const result = await firstValueFrom(this.api.postMultipart<UnlockResponse>(`/locks/${doorId}/unlock`, formData));
+      if (!result.commandId) throw new Error('The server did not create a controller command.');
+      await this.nearbyPresence.proveNearbyPresence(result.commandId);
+      alert(`Presence proof sent for "${door.name}". ${result.message || 'Waiting for controller acknowledgement.'}`);
+      this.loadDoors();
+    } catch (err: any) {
+      alert(err?.error?.error || err?.message || 'The nearby presence proof failed. The door remains locked.');
+    }
   }
 
   canUnlock(door: Door): boolean {
