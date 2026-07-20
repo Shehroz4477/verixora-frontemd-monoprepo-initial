@@ -28,5 +28,7 @@ jobs:
         with:
           distribution: microsoft
           java-version: '17'
+      - run: chmod +x ./gradlew
+        working-directory: android
       - run: ./gradlew assembleDebug --no-daemon
         working-directory: android
