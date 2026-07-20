@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { forkJoin, Subscription } from 'rxjs';
 import { WebApiService } from '../core/web-api.service';
 import { WebAuthService } from '../core/web-auth.service';
+import { MonitoringHubService } from '../core/monitoring-hub.service';
 
 interface Home { id: string; name: string; role: string; }
 interface Lock { id: string; name: string; status: string; controllerStatus: string; requiresFace: boolean; lastUnlockedAtUtc?: string | null; }
@@ -12,17 +13,30 @@ interface AuditLog { id: string; action: string; timestampUtc: string; result: b
   templateUrl: './web-dashboard.component.html',
   styleUrls: ['./web-dashboard.component.scss']
 })
-export class WebDashboardComponent implements OnInit {
+export class WebDashboardComponent implements OnInit, OnDestroy {
   homes: Home[] = [];
   selectedHomeId = '';
   locks: Lock[] = [];
   auditLogs: AuditLog[] = [];
   loading = true;
   error = '';
+  private auditSubscription?: Subscription;
 
-  constructor(private api: WebApiService, private auth: WebAuthService) {}
+  constructor(private api: WebApiService, private auth: WebAuthService, private monitoringHub: MonitoringHubService) {}
 
-  ngOnInit(): void { this.loadHomes(); }
+  ngOnInit(): void {
+    this.auditSubscription = this.monitoringHub.auditEvents$.subscribe(event => {
+      if (event.homeId === this.selectedHomeId) this.loadSelectedHome();
+    });
+    const token = this.auth.token();
+    if (token) this.monitoringHub.connect(token).catch(() => this.error = 'Live monitoring connection is unavailable; refresh remains available.');
+    this.loadHomes();
+  }
+
+  ngOnDestroy(): void {
+    this.auditSubscription?.unsubscribe();
+    this.monitoringHub.disconnect().catch(() => undefined);
+  }
 
   loadHomes(): void {
     this.loading = true;
