@@ -177,7 +177,10 @@
               "projects/mobile-app/src/styles.scss"
             ],
             "scripts": [],
-            "include": ["projects/mobile-app/src/app/core/**/*.spec.ts"]
+            "include": [
+              "projects/mobile-app/src/app/core/**/*.spec.ts",
+              "projects/mobile-app/src/app/devices/**/*.spec.ts"
+            ]
           }
         }
       }

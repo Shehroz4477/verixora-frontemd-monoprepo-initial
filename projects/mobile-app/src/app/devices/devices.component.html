@@ -1,28 +1,131 @@
-<!-- <ion-header>
-  <ion-toolbar color="transparent">
-    <ion-title>{{ title }}</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-content>
-  <div style="padding:20px;color:white;text-align:center;">
-    <h2>{{ title }}</h2>
-    <p>Coming soon...</p>
-  </div>
-</ion-content> -->
-
 <ion-header>
   <ion-toolbar color="transparent">
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()" class="back-btn">
+      <ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard">
         <ion-icon name="arrow-back-outline" class="back-icon"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title class="toolbar-title">{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div style="padding:20px;color:white;text-align:center;">
-    <h2>{{ title }}</h2>
-    <p>Coming soon...</p>
-  </div>
+
+<ion-content [fullscreen]="true">
+  <main class="page-shell">
+    <section class="intro">
+      <p class="eyebrow">Secure installation</p>
+      <h1>Connect one controller to one door</h1>
+      <p>Register the controller QR/serial ID first. The door stays unavailable until its physical secure provisioning succeeds.</p>
+    </section>
+
+    <ion-card *ngIf="errorMessage" color="danger" class="message-card" role="alert">
+      <ion-card-content>{{ errorMessage }}</ion-card-content>
+    </ion-card>
+    <ion-card *ngIf="successMessage" color="success" class="message-card" role="status">
+      <ion-card-content>{{ successMessage }}</ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="isLoading" class="section-card loading-card">
+      <ion-card-content><ion-spinner name="crescent"></ion-spinner> Loading homes and controllers…</ion-card-content>
+    </ion-card>
+
+    <ng-container *ngIf="!isLoading">
+      <ion-card *ngIf="homes.length === 0" class="section-card">
+        <ion-card-content>
+          <h2>Create a home first</h2>
+          <p>A controller always belongs to one home. Create your first home from the dashboard/API, then return here.</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ng-container *ngIf="homes.length > 0">
+        <ion-card class="section-card">
+          <ion-card-header>
+            <ion-card-subtitle>Step 1</ion-card-subtitle>
+            <ion-card-title>Register controller</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item lines="full">
+              <ion-select label="Home" label-placement="stacked" interface="action-sheet" [(ngModel)]="selectedHomeId" (ionChange)="onHomeChanged()">
+                <ion-select-option *ngFor="let home of homes" [value]="home.id">{{ home.name }} · {{ home.role }}</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item lines="full">
+              <ion-input label="Controller name" label-placement="stacked" [(ngModel)]="controllerName" maxlength="100" placeholder="Front Door ESP32"></ion-input>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-input label="QR or serial hardware ID" label-placement="stacked" [(ngModel)]="hardwareId" maxlength="128" autocapitalize="characters" placeholder="ESP32-FRONT-001"></ion-input>
+            </ion-item>
+            <p class="help-text">Only a home owner can register a controller. The ID is permanent and cannot be reused by another account.</p>
+            <ion-button expand="block" (click)="registerController()" [disabled]="isSavingController || !selectedHomeId">
+              <ion-spinner *ngIf="isSavingController" name="crescent"></ion-spinner>
+              <span *ngIf="!isSavingController">Register controller</span>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card *ngIf="provisioningReceipt" class="section-card provisioning-card">
+          <ion-card-header>
+            <ion-card-subtitle>Use once · {{ selectedHomeName() }}</ion-card-subtitle>
+            <ion-card-title>Provisioning receipt</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Use this token only during the physical controller provisioning session. It is not saved by the app and will expire at {{ formatTimestamp(provisioningReceipt.expiresAtUtc) }}.</p>
+            <dl class="receipt-list">
+              <div><dt>Hardware ID</dt><dd>{{ provisioningReceipt.hardwareId }}</dd></div>
+              <div><dt>MQTT topic</dt><dd>{{ provisioningReceipt.mqttTopic }}</dd></div>
+            </dl>
+            <ion-textarea class="provisioning-token" label="One-time provisioning token" label-placement="stacked" [readonly]="true" [value]="provisioningReceipt.token" auto-grow="true"></ion-textarea>
+            <ion-button fill="outline" expand="block" (click)="copyProvisioningToken()">Copy token</ion-button>
+            <p class="warning-text">Never send this token over chat, email, or screenshots. Production provisioning also requires hardware attestation and per-controller MQTT certificates.</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="section-card">
+          <ion-card-header>
+            <ion-card-subtitle>Registered controllers</ion-card-subtitle>
+            <ion-card-title>{{ selectedHomeName() }}</ion-card-title>
+          </ion-card-header>
+          <ion-list lines="inset" *ngIf="controllers.length > 0; else noControllers">
+            <ion-item *ngFor="let controller of controllers">
+              <ion-label>
+                <h2>{{ controller.name }}</h2>
+                <p>{{ controller.hardwareId }} · {{ controller.mqttTopic }}</p>
+                <p>Provisioned: {{ formatTimestamp(controller.provisionedAtUtc) }}</p>
+              </ion-label>
+              <ion-badge slot="end" [color]="isControllerReady(controller) ? 'success' : 'warning'">{{ controller.status }}</ion-badge>
+            </ion-item>
+          </ion-list>
+          <ng-template #noControllers>
+            <ion-card-content>No controller has been registered for this home yet.</ion-card-content>
+          </ng-template>
+        </ion-card>
+
+        <ion-card class="section-card">
+          <ion-card-header>
+            <ion-card-subtitle>Step 2</ion-card-subtitle>
+            <ion-card-title>Create door</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item lines="full">
+              <ion-select label="Provisioned controller" label-placement="stacked" interface="action-sheet" [(ngModel)]="selectedControllerId" placeholder="Choose an Active or Online controller">
+                <ion-select-option *ngFor="let controller of controllers" [value]="controller.id" [disabled]="!isControllerReady(controller)">
+                  {{ controller.name }} · {{ controller.status }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item lines="full">
+              <ion-input label="Door name" label-placement="stacked" [(ngModel)]="doorName" maxlength="100" placeholder="Front Door"></ion-input>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-toggle [(ngModel)]="requiresFace">Require face verification for unlock</ion-toggle>
+            </ion-item>
+            <p class="help-text">One controller may be assigned to only one door. Face-required doors also need a successful enrolment and production liveness/PAD result.</p>
+            <ion-button expand="block" (click)="createDoor()" [disabled]="isSavingDoor || !selectedControllerId">
+              <ion-spinner *ngIf="isSavingDoor" name="crescent"></ion-spinner>
+              <span *ngIf="!isSavingDoor">Create door</span>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ng-container>
+    </ng-container>
+  </main>
 </ion-content>
