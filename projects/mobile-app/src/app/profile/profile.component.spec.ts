@@ -5,7 +5,7 @@ import { ProfileComponent } from './profile.component';
 
 describe('ProfileComponent', () => {
   it('saves an email before sending and verifying the email OTP on the trusted device', async () => {
-    const api = jasmine.createSpyObj<ApiService>('ApiService', ['post']);
+    const api = jasmine.createSpyObj<ApiService>('ApiService', ['post', 'delete']);
     const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isMockMode', 'logout']);
     auth.isMockMode.and.returnValue(false);
     api.post.and.returnValues(
@@ -26,5 +26,19 @@ describe('ProfileComponent', () => {
     expect(api.post).toHaveBeenCalledWith('/auth/verify-email', { code: '123456' });
     expect(component.verificationCode).toBe('');
     expect(component.message).toBe('Email verified.');
+  });
+
+  it('deletes face enrollment only after the user confirms the privacy action', async () => {
+    const api = jasmine.createSpyObj<ApiService>('ApiService', ['post', 'delete']);
+    const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isMockMode', 'logout']);
+    auth.isMockMode.and.returnValue(false);
+    api.delete.and.returnValue(of({ status: 'deleted' }));
+    spyOn(window, 'confirm').and.returnValue(true);
+    const component = new ProfileComponent(jasmine.createSpyObj('Router', ['navigate']), auth, api);
+
+    await component.deleteFaceEnrollment();
+
+    expect(api.delete).toHaveBeenCalledWith('/face/enrollment');
+    expect(component.message).toContain('Face enrollment deleted');
   });
 });

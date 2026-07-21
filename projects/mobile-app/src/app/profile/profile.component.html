@@ -23,7 +23,7 @@
     </ion-card>
     <ion-card class="settings-card">
       <ion-card-header><ion-card-subtitle>Door access</ion-card-subtitle><ion-card-title>Face enrolment</ion-card-title></ion-card-header>
-      <ion-card-content><p>Face-required doors reject unlocks until your face template is enrolled and the production liveness check passes.</p><ion-button fill="outline" expand="block" (click)="openFaceEnrollment()">Enroll or update face</ion-button></ion-card-content>
+      <ion-card-content><p>Face-required doors reject unlocks until your face template is enrolled and the production liveness check passes.</p><ion-button fill="outline" expand="block" (click)="openFaceEnrollment()">Enroll or update face</ion-button><ion-button fill="clear" expand="block" color="danger" (click)="deleteFaceEnrollment()" [disabled]="isDeletingFace"><ion-spinner *ngIf="isDeletingFace" name="crescent"></ion-spinner><span *ngIf="!isDeletingFace">Delete enrolled face data</span></ion-button></ion-card-content>
     </ion-card>
     <ion-button class="logout" fill="clear" expand="block" color="danger" (click)="logout()">Sign out from this device</ion-button>
   </main>

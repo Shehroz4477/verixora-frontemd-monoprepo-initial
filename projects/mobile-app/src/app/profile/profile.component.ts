@@ -9,6 +9,10 @@ interface ActionResponse {
   message: string;
 }
 
+interface FaceDeletionResponse {
+  status: string;
+}
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -22,6 +26,7 @@ export class ProfileComponent {
   isSavingEmail = false;
   isSendingCode = false;
   isVerifying = false;
+  isDeletingFace = false;
   message = '';
   errorMessage = '';
 
@@ -109,6 +114,29 @@ export class ProfileComponent {
 
   openFaceEnrollment(): void {
     this.router.navigate(['/tabs/face-enrollment']);
+  }
+
+  async deleteFaceEnrollment(): Promise<void> {
+    this.clearMessages();
+    if (!window.confirm('Delete your enrolled face templates? Face-required doors will reject unlock requests until you enroll again.')) {
+      return;
+    }
+    if (this.auth.isMockMode()) {
+      this.message = 'Mock face enrollment deleted. Face-required doors now require a new enrollment.';
+      return;
+    }
+
+    this.isDeletingFace = true;
+    try {
+      const result = await firstValueFrom(this.api.delete<FaceDeletionResponse>('/face/enrollment'));
+      this.message = result.status === 'deleted'
+        ? 'Face enrollment deleted. Face-required doors will remain locked until you enroll again.'
+        : 'Face enrollment removal was requested.';
+    } catch (error) {
+      this.errorMessage = this.apiError(error, 'Could not delete the face enrollment.');
+    } finally {
+      this.isDeletingFace = false;
+    }
   }
 
   logout(): void {
