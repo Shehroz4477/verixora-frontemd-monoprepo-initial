@@ -10,6 +10,7 @@
   },
   "include": [
     "src/app/core/**/*.spec.ts",
+    "src/app/dashboard/**/*.spec.ts",
     "src/**/*.d.ts"
   ]
 }

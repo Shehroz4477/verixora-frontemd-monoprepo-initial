@@ -5,6 +5,7 @@ import { WebAuthService } from '../core/web-auth.service';
 import { MonitoringHubService } from '../core/monitoring-hub.service';
 
 interface Home { id: string; name: string; role: string; }
+interface Controller { id: string; name: string; hardwareId: string; mqttTopic: string; status: string; createdAtUtc: string; provisionedAtUtc?: string | null; }
 interface Lock { id: string; name: string; status: string; controllerStatus: string; requiresFace: boolean; lastUnlockedAtUtc?: string | null; }
 interface AuditLog { id: string; action: string; timestampUtc: string; result: boolean; details?: string | null; }
 
@@ -17,6 +18,7 @@ interface AuditLog { id: string; action: string; timestampUtc: string; result: b
 export class WebDashboardComponent implements OnInit, OnDestroy {
   homes: Home[] = [];
   selectedHomeId = '';
+  controllers: Controller[] = [];
   locks: Lock[] = [];
   auditLogs: AuditLog[] = [];
   loading = true;
@@ -52,14 +54,15 @@ export class WebDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadSelectedHome(): void {
-    if (!this.selectedHomeId) { this.locks = []; this.auditLogs = []; this.loading = false; return; }
+    if (!this.selectedHomeId) { this.controllers = []; this.locks = []; this.auditLogs = []; this.loading = false; return; }
     this.loading = true;
     this.error = '';
     forkJoin({
+      controllers: this.api.get<Controller[]>(`/devices?homeId=${encodeURIComponent(this.selectedHomeId)}`),
       locks: this.api.get<Lock[]>(`/locks?homeId=${encodeURIComponent(this.selectedHomeId)}`),
       audit: this.api.get<AuditLog[]>(`/auditlogs?homeId=${encodeURIComponent(this.selectedHomeId)}`)
     }).subscribe({
-      next: result => { this.locks = result.locks; this.auditLogs = result.audit; this.loading = false; },
+      next: result => { this.controllers = result.controllers; this.locks = result.locks; this.auditLogs = result.audit; this.loading = false; },
       error: error => { this.error = error.error?.error || 'Could not load monitoring data.'; this.loading = false; }
     });
   }

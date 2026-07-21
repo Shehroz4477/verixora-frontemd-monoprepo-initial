@@ -87,6 +87,7 @@ coverage/
 !projects/mobile-app/src/app/core/**/*.spec.ts
 !projects/mobile-app/src/app/devices/**/*.spec.ts
 !projects/web-portal/src/app/core/**/*.spec.ts
+!projects/web-portal/src/app/dashboard/**/*.spec.ts
 
 #-------------------------------------------------------------
 # Temporary files / cache

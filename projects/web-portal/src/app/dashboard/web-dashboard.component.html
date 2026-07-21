@@ -27,6 +27,23 @@
 
   @if (!loading && selectedHomeId) {
     <section class="panel">
+      <div class="panel-heading"><h2>Controllers</h2><span>{{ controllers.length }} registered</span></div>
+      @if (controllers.length) {
+        <div class="controller-grid">
+          @for (controller of controllers; track controller) {
+            <article class="controller">
+              <div class="controller-title"><h3>{{ controller.name }}</h3><span [class.online]="controller.status === 'Online'" [class.pending]="controller.status === 'Pending'">{{ controller.status }}</span></div>
+              <p><strong>Hardware:</strong> {{ controller.hardwareId }}</p>
+              <p><strong>MQTT topic:</strong> {{ controller.mqttTopic }}</p>
+              <small>Provisioned: {{ controller.provisionedAtUtc ? (controller.provisionedAtUtc | date:'medium') : 'Awaiting secure provisioning' }}</small>
+            </article>
+          }
+        </div>
+      } @else {
+        <p>No controller has been registered for this home.</p>
+      }
+    </section>
+    <section class="panel">
       <div class="panel-heading"><h2>Door controllers</h2><span>{{ locks.length }} registered</span></div>
       <div class="lock-grid">
         @for (lock of locks; track lock) {

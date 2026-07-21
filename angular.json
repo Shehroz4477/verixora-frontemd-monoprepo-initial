@@ -73,7 +73,10 @@
             "assets": ["projects/web-portal/src/favicon.ico", "projects/web-portal/src/assets"],
             "styles": ["projects/web-portal/src/styles.scss"],
             "scripts": [],
-            "include": ["projects/web-portal/src/app/core/**/*.spec.ts"]
+            "include": [
+              "projects/web-portal/src/app/core/**/*.spec.ts",
+              "projects/web-portal/src/app/dashboard/**/*.spec.ts"
+            ]
           }
         }
       }
