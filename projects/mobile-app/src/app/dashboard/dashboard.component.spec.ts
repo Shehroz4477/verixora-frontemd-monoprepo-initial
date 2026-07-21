@@ -1,23 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ApiService } from '../core/services/api.service';
+import { AuthService } from '../core/services/auth.service';
+import { NearbyPresenceService } from '../core/services/nearby-presence.service';
 import { DashboardComponent } from './dashboard.component';
 
 describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
+  it('routes the dashboard audit action to the mobile security activity screen', () => {
+    const router = jasmine.createSpyObj('Router', ['navigate']);
+    const component = new DashboardComponent(
+      jasmine.createSpyObj<AuthService>('AuthService', ['isMockMode', 'logout']),
+      jasmine.createSpyObj<ApiService>('ApiService', ['get', 'postMultipart']),
+      router,
+      jasmine.createSpyObj<NearbyPresenceService>('NearbyPresenceService', ['proveNearbyPresence'])
+    );
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [DashboardComponent]
-    })
-    .compileComponents();
+    component.viewAuditLog();
 
-    fixture = TestBed.createComponent(DashboardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(router.navigate).toHaveBeenCalledWith(['/tabs/notifications']);
   });
 });

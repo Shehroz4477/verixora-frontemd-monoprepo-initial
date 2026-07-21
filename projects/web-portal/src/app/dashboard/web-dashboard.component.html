@@ -9,7 +9,7 @@
       <label for="home">Home</label>
       <select id="home" [(ngModel)]="selectedHomeId" (change)="loadSelectedHome()">
         @for (home of homes; track home) {
-          <option [value]="home.id">{{ home.name }} · {{ home.role }}</option>
+          <option [value]="home.id">{{ home.name }} - {{ home.role }}</option>
         }
       </select>
     </section>
@@ -19,7 +19,7 @@
     <p class="error" role="alert">{{ error }}</p>
   }
   @if (loading) {
-    <p>Loading protected monitoring data…</p>
+    <p>Loading protected monitoring data...</p>
   }
   @if (!loading && !homes.length) {
     <p>No home is assigned to this portal user.</p>

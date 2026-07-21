@@ -85,6 +85,7 @@ coverage/
 
 # Verixora security tests are source code and must remain version controlled.
 !projects/mobile-app/src/app/core/**/*.spec.ts
+!projects/mobile-app/src/app/dashboard/**/*.spec.ts
 !projects/mobile-app/src/app/devices/**/*.spec.ts
 !projects/mobile-app/src/app/notifications/**/*.spec.ts
 !projects/mobile-app/src/app/profile/**/*.spec.ts

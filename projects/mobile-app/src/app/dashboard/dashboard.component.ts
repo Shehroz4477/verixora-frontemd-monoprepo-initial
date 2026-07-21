@@ -175,7 +175,7 @@ export class DashboardComponent implements OnInit {
   }
 
   viewAuditLog(): void {
-    alert('Audit history will be available in the web portal and Devices tab.');
+    this.router.navigate(['/tabs/notifications']);
   }
 
   showDoorOptions(door: Door): void {
