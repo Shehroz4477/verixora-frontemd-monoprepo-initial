@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit {
   }
 
   addDoor(): void {
-    alert('Controller registration is available from the Devices tab.');
+    this.router.navigate(['/tabs/devices']);
   }
 
   viewAuditLog(): void {
