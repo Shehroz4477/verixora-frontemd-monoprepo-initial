@@ -14,7 +14,7 @@ describe('WebDashboardComponent', () => {
     api.get.and.returnValues(
       of([{ id: 'controller-1', name: 'Front Door ESP32', hardwareId: 'ESP32-FRONT-001', mqttTopic: 'verixora/controller-1', status: 'Pending', createdAtUtc: '2026-07-21T10:00:00.000Z' }]),
       of([{ id: 'lock-1', name: 'Front Door', status: 'Locked', controllerStatus: 'Pending', requiresFace: true }]),
-      of([{ id: 'audit-1', action: 'ControllerRegistered', timestampUtc: '2026-07-21T10:00:01.000Z', result: true }])
+      of([{ id: 'audit-1', action: 'ControllerRegistered', timestamp: '2026-07-21T10:00:01.000Z', result: true }])
     );
 
     component.loadSelectedHome();

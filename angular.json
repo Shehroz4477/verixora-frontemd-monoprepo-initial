@@ -182,7 +182,9 @@
             "scripts": [],
             "include": [
               "projects/mobile-app/src/app/core/**/*.spec.ts",
-              "projects/mobile-app/src/app/devices/**/*.spec.ts"
+              "projects/mobile-app/src/app/devices/**/*.spec.ts",
+              "projects/mobile-app/src/app/notifications/**/*.spec.ts",
+              "projects/mobile-app/src/app/profile/**/*.spec.ts"
             ]
           }
         }

@@ -1,17 +1,29 @@
-
 <ion-header>
   <ion-toolbar color="transparent">
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()" class="back-btn">
-        <ion-icon name="arrow-back-outline" class="back-icon"></ion-icon>
-      </ion-button>
+      <ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard"><ion-icon name="arrow-back-outline" class="back-icon"></ion-icon></ion-button>
     </ion-buttons>
     <ion-title class="toolbar-title">{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div style="padding:20px;color:white;text-align:center;">
-    <h2>{{ title }}</h2>
-    <p>Coming soon...</p>
-  </div>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="loadActivity($event)"><ion-refresher-content></ion-refresher-content></ion-refresher>
+  <main class="activity-shell">
+    <section class="intro"><p class="eyebrow">Owner audit trail</p><h1>Access decisions and controller events</h1><p>Only homes you own appear here. Pull down to refresh the latest server-recorded events.</p></section>
+    <ion-card *ngIf="errorMessage" color="danger" role="alert"><ion-card-content>{{ errorMessage }}</ion-card-content></ion-card>
+    <ion-card *ngIf="isLoading" class="activity-card"><ion-card-content><ion-spinner name="crescent"></ion-spinner> Loading activity...</ion-card-content></ion-card>
+    <ion-list *ngIf="!isLoading && activity.length" lines="inset" class="activity-list">
+      <ion-item *ngFor="let item of activity">
+        <ion-icon slot="start" [name]="item.result ? 'checkmark-circle-outline' : 'alert-circle-outline'" [color]="item.result ? 'success' : 'danger'"></ion-icon>
+        <ion-label>
+          <h2>{{ item.action }}</h2>
+          <p>{{ item.homeName }} - {{ formatTimestamp(item.timestamp) }}</p>
+          <p *ngIf="item.details">{{ item.details }}</p>
+        </ion-label>
+        <ion-badge slot="end" [color]="item.result ? 'success' : 'danger'">{{ item.result ? 'Allowed' : 'Rejected' }}</ion-badge>
+      </ion-item>
+    </ion-list>
+    <ion-card *ngIf="!isLoading && !activity.length" class="activity-card"><ion-card-content>No security activity has been recorded for an owned home yet.</ion-card-content></ion-card>
+  </main>
 </ion-content>

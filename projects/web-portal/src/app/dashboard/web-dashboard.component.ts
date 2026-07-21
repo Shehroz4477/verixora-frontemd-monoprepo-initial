@@ -7,7 +7,7 @@ import { MonitoringHubService } from '../core/monitoring-hub.service';
 interface Home { id: string; name: string; role: string; }
 interface Controller { id: string; name: string; hardwareId: string; mqttTopic: string; status: string; createdAtUtc: string; provisionedAtUtc?: string | null; }
 interface Lock { id: string; name: string; status: string; controllerStatus: string; requiresFace: boolean; lastUnlockedAtUtc?: string | null; }
-interface AuditLog { id: string; action: string; timestampUtc: string; result: boolean; details?: string | null; }
+interface AuditLog { id: string; action: string; timestamp: string; result: boolean; details?: string | null; }
 
 @Component({
     selector: 'app-web-dashboard',

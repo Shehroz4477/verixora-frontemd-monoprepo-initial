@@ -1,21 +1,16 @@
-@use 'mixins' as *;
+@use 'variables' as *;
 
-.back-btn {
-  --color: #{$color-primary};
-  --padding-start: $space-2;
-  --padding-end: $space-2;
-  --border-radius: #{$radius-sm};
-  &:hover {
-    --color: #{$color-primary-light};
-  }
-}
-.back-icon {
-  font-size: 24px;
-  color: $color-primary;
-}
-.toolbar-title {
-  font-size: $font-size-md;
-  font-weight: $font-semibold;
-  color: $white;
-  letter-spacing: 0.5px;
-}
+.back-btn { --color: #{$color-primary}; }
+.back-icon { color: $color-primary; font-size: 24px; }
+.toolbar-title { color: $white; font-size: $font-size-md; font-weight: $font-semibold; }
+.activity-shell { margin: 0 auto; max-width: 720px; padding: $space-4 $space-3 calc(#{$space-6} + env(safe-area-inset-bottom)); }
+.intro { margin-bottom: $space-4; }
+.intro .eyebrow { color: $color-primary; font-size: $font-size-xs; font-weight: $font-bold; letter-spacing: .1em; margin: 0 0 $space-1; text-transform: uppercase; }
+.intro h1 { color: $white; font-size: 1.55rem; line-height: 1.2; margin: 0 0 $space-2; }
+.intro p:not(.eyebrow) { color: rgba($white, .74); line-height: 1.55; margin: 0; }
+.activity-card { --background: rgba(16, 26, 57, .92); color: $white; }
+.activity-card ion-card-content { align-items: center; display: flex; gap: $space-2; }
+.activity-list { background: transparent; border: 1px solid rgba($color-primary, .22); border-radius: $radius-md; overflow: hidden; }
+.activity-list ion-item { --background: rgba(16, 26, 57, .92); --color: #{$white}; }
+.activity-list h2 { color: $white; }
+.activity-list p { color: rgba($white, .64); }

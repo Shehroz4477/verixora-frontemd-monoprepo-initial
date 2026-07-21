@@ -65,7 +65,7 @@
             <div class="audit-row">
               <span [class.success]="log.result" [class.failure]="!log.result">{{ log.result ? 'Allowed' : 'Rejected' }}</span>
               <strong>{{ log.action }}</strong>
-              <time>{{ log.timestampUtc | date:'medium' }}</time>
+              <time>{{ log.timestamp | date:'medium' }}</time>
               <p>{{ log.details || 'No additional detail.' }}</p>
             </div>
           }

@@ -11,6 +11,8 @@
   "include": [
     "src/app/core/**/*.spec.ts",
     "src/app/devices/**/*.spec.ts",
+    "src/app/notifications/**/*.spec.ts",
+    "src/app/profile/**/*.spec.ts",
     "src/**/*.d.ts"
   ]
 }

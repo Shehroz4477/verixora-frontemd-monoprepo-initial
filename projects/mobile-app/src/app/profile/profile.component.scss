@@ -1,21 +1,14 @@
-@use 'mixins' as *;
+@use 'variables' as *;
 
-.back-btn {
-  --color: #{$color-primary};
-  --padding-start: $space-2;
-  --padding-end: $space-2;
-  --border-radius: #{$radius-sm};
-  &:hover {
-    --color: #{$color-primary-light};
-  }
-}
-.back-icon {
-  font-size: 24px;
-  color: $color-primary;
-}
-.toolbar-title {
-  font-size: $font-size-md;
-  font-weight: $font-semibold;
-  color: $white;
-  letter-spacing: 0.5px;
-}
+.back-btn { --color: #{$color-primary}; }
+.back-icon { color: $color-primary; font-size: 24px; }
+.toolbar-title { color: $white; font-size: $font-size-md; font-weight: $font-semibold; }
+.settings-shell { margin: 0 auto; max-width: 720px; padding: $space-4 $space-3 calc(#{$space-6} + env(safe-area-inset-bottom)); }
+.intro { margin-bottom: $space-4; }
+.intro .eyebrow { color: $color-primary; font-size: $font-size-xs; font-weight: $font-bold; letter-spacing: .1em; margin: 0 0 $space-1; text-transform: uppercase; }
+.intro h1 { color: $white; font-size: 1.55rem; line-height: 1.2; margin: 0 0 $space-2; }
+.intro p:not(.eyebrow) { color: rgba($white, .74); line-height: 1.55; margin: 0; }
+.settings-card { --background: rgba(16, 26, 57, .92); border: 1px solid rgba($color-primary, .22); }
+.settings-card ion-card-title { color: $white; }.settings-card ion-card-subtitle { color: $color-primary-light; }.settings-card ion-item { --background: transparent; --color: #{$white}; }.settings-card ion-input { --color: #{$white}; }.settings-card p { color: rgba($white, .7); line-height: 1.55; }
+.help-text { font-size: $font-size-xs; margin: $space-3 0 0; }
+.logout { margin-top: $space-2; }

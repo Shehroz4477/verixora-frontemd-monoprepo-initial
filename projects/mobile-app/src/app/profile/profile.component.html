@@ -1,16 +1,30 @@
 <ion-header>
   <ion-toolbar color="transparent">
-    <ion-buttons slot="start">
-      <ion-button (click)="goBack()" class="back-btn">
-        <ion-icon name="arrow-back-outline" class="back-icon"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-buttons slot="start"><ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard"><ion-icon name="arrow-back-outline" class="back-icon"></ion-icon></ion-button></ion-buttons>
     <ion-title class="toolbar-title">{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div style="padding:20px;color:white;text-align:center;">
-    <h2>{{ title }}</h2>
-    <p>Coming soon...</p>
-  </div>
+
+<ion-content [fullscreen]="true">
+  <main class="settings-shell">
+    <section class="intro"><p class="eyebrow">Trusted Android device</p><h1>Account and access settings</h1><p>Your phone and hardware-backed key remain the mobile access factor. Verify an email here before using the web portal.</p></section>
+    <ion-card *ngIf="errorMessage" color="danger" role="alert"><ion-card-content>{{ errorMessage }}</ion-card-content></ion-card>
+    <ion-card *ngIf="message" color="success" role="status"><ion-card-content>{{ message }}</ion-card-content></ion-card>
+    <ion-card class="settings-card">
+      <ion-card-header><ion-card-subtitle>Web portal access</ion-card-subtitle><ion-card-title>Verify email</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <ion-item lines="full"><ion-input label="Email address" label-placement="stacked" type="email" inputmode="email" autocomplete="email" [(ngModel)]="email" placeholder="owner@example.com"></ion-input></ion-item>
+        <ion-button expand="block" (click)="saveEmail()" [disabled]="isSavingEmail"><ion-spinner *ngIf="isSavingEmail" name="crescent"></ion-spinner><span *ngIf="!isSavingEmail">Save email</span></ion-button>
+        <ion-button fill="outline" expand="block" (click)="sendVerificationCode()" [disabled]="isSendingCode"><ion-spinner *ngIf="isSendingCode" name="crescent"></ion-spinner><span *ngIf="!isSendingCode">Send verification code</span></ion-button>
+        <ion-item lines="full"><ion-input label="Email code" label-placement="stacked" [(ngModel)]="verificationCode" maxlength="12" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter code"></ion-input></ion-item>
+        <ion-button expand="block" (click)="verifyEmail()" [disabled]="isVerifying"><ion-spinner *ngIf="isVerifying" name="crescent"></ion-spinner><span *ngIf="!isVerifying">Verify email</span></ion-button>
+        <p class="help-text">The code is entered only on this registered mobile device. A saved but unverified email cannot sign in to the web portal.</p>
+      </ion-card-content>
+    </ion-card>
+    <ion-card class="settings-card">
+      <ion-card-header><ion-card-subtitle>Door access</ion-card-subtitle><ion-card-title>Face enrolment</ion-card-title></ion-card-header>
+      <ion-card-content><p>Face-required doors reject unlocks until your face template is enrolled and the production liveness check passes.</p><ion-button fill="outline" expand="block" (click)="openFaceEnrollment()">Enroll or update face</ion-button></ion-card-content>
+    </ion-card>
+    <ion-button class="logout" fill="clear" expand="block" color="danger" (click)="logout()">Sign out from this device</ion-button>
+  </main>
 </ion-content>
