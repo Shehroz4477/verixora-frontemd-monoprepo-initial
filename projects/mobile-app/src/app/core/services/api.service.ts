@@ -7,7 +7,9 @@ import { environment } from './../../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly baseUrl = !environment.production && Capacitor.getPlatform() === 'android'
-    ? environment.androidEmulatorApiUrl
+    ? environment.androidDebugTarget === 'physical'
+      ? environment.androidPhysicalDeviceApiUrl
+      : environment.androidEmulatorApiUrl
     : environment.apiUrl;
 
   constructor(private http: HttpClient) {}
