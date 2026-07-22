@@ -12,6 +12,10 @@ export class ApiService {
       : environment.androidEmulatorApiUrl
     : environment.apiUrl;
 
+  get configuredBaseUrl(): string {
+    return this.baseUrl;
+  }
+
   constructor(private http: HttpClient) {}
 
   get<T>(endpoint: string, params?: HttpParams): Observable<T> {

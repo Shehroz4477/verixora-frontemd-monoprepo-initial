@@ -1,8 +1,0 @@
-{
-  "appId": "com.verixora.mobile",
-  "appName": "Verixora.Mobile",
-  "webDir": "dist/mobile-app",
-  "server": {
-    "androidScheme": "https"
-  }
-}

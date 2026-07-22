@@ -39,8 +39,6 @@ www/
 android/
 ios/
 .capacitor/
-capacitor.config.json
-capacitor.config.ts
 *.apk
 *.aab
 *.ipa

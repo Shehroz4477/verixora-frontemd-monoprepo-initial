@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { CountryService, Country } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
+import { ApiService } from '../core/services/api.service';
 import { CountrySelectorModalComponent } from '../country-selector-modal/country-selector-modal.component';
 import { finalize } from 'rxjs/operators';
 
@@ -38,6 +39,7 @@ export class RegistrationComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
+    private api: ApiService,
     private countryService: CountryService,
     private storage: StorageService,
     private modalController: ModalController,
@@ -181,8 +183,13 @@ export class RegistrationComponent implements OnInit {
           });
         },
         error: (err) => {
-          const errorMsg = err.error?.error || 'Failed to send OTP. Please try again.';
-          this.showMessage(errorMsg, 'error');
+          console.error('Registration OTP request failed.', {
+            status: err?.status,
+            url: err?.url,
+            message: err?.message,
+            error: err?.error
+          });
+          this.showMessage(this.describeOtpError(err), 'error');
         }
       });
   }
@@ -194,5 +201,17 @@ export class RegistrationComponent implements OnInit {
   private showMessage(text: string, type: 'info' | 'success' | 'error') {
     this.message = text;
     this.messageType = type;
+  }
+
+  private describeOtpError(error: any): string {
+    const serverMessage = error?.error?.error || error?.error?.title;
+    if (typeof serverMessage === 'string' && serverMessage.trim()) return serverMessage;
+
+    if (error?.status === 0) {
+      return `Network request did not reach the API: ${this.api.configuredBaseUrl}`;
+    }
+
+    const status = Number.isInteger(error?.status) ? `HTTP ${error.status}` : 'unknown error';
+    return `OTP request failed (${status}): ${error?.message || 'No error details returned.'}`;
   }
 }
