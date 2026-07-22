@@ -1,154 +1,66 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="transparent">
-    <div class="header-left">
-      <div class="logo-container">
-        <div class="logo-icon">🔐</div>
-        <span class="brand-title">Verixora</span>
-      </div>
+  <ion-toolbar>
+    <div class="top-brand">
+      <div class="top-mark"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+      <div><span>VERIXORA</span><small>SECURITY NETWORK</small></div>
     </div>
-    <div class="header-right" slot="end">
-      <ion-button fill="clear" class="action-btn" (click)="openNotifications()">
-        <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" class="action-btn" (click)="openSettings()">
-        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" class="action-btn logout-btn" (click)="logout()">
-        <ion-icon name="power-outline" slot="icon-only"></ion-icon>
-      </ion-button>
+    <div slot="end" class="top-actions">
+      <ion-button fill="clear" class="top-action" (click)="openNotifications()" aria-label="Open security activity"><ion-icon name="notifications-outline"></ion-icon></ion-button>
+      <ion-button fill="clear" class="top-action" (click)="openSettings()" aria-label="Open security settings"><ion-icon name="options-outline"></ion-icon></ion-button>
     </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="dashboard-content">
-  <!-- Loading & Error states -->
-  @if (isLoading) {
-    <div class="loading-state">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Loading...</p>
-    </div>
-  }
-  @if (!isLoading && errorMessage) {
-    <div class="error-state">
-      <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
-      <p>{{ errorMessage }}</p>
-      <ion-button (click)="loadDoors()">Retry</ion-button>
-    </div>
-  }
-
-  @if (!isLoading && !errorMessage) {
-    @if (!hasHomes) {
-      <section class="empty-home-state" aria-live="polite">
-        <div class="empty-home-icon"><ion-icon name="home-outline"></ion-icon></div>
-        <p class="eyebrow">STEP 1 OF 3</p>
-        <h1>Set up your first home</h1>
-        <p>Create a home before registering a controller. You can add one ESP32 controller per door after this step.</p>
-        <ion-item class="home-name-input" lines="none">
-          <ion-icon name="home-outline" slot="start"></ion-icon>
-          <ion-input [(ngModel)]="newHomeName" maxlength="100" placeholder="e.g. Main Home" aria-label="Home name"></ion-input>
-        </ion-item>
-        <ion-button class="create-home-btn" expand="block" (click)="createHome()" [disabled]="isCreatingHome">
-          @if (isCreatingHome) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Create secure home</span> }
-        </ion-button>
+<ion-content class="dashboard-content" [fullscreen]="true">
+  <main class="dashboard-shell vx-page-enter">
+    @if (isLoading) {
+      <section class="dashboard-loading" aria-live="polite"><div class="radar-loader"><ion-spinner name="crescent"></ion-spinner></div><h1>Syncing your space</h1><p>Loading trusted homes and controller status.</p></section>
+    } @else if (errorMessage) {
+      <section class="dashboard-empty error-empty" aria-live="polite"><div class="empty-orb"><ion-icon name="cloud-offline-outline"></ion-icon></div><p class="eyebrow">CONNECTION REQUIRED</p><h1>We could not load your security network</h1><p>{{ errorMessage }}</p><ion-button class="primary-button" expand="block" (click)="loadDoors()">Retry connection <ion-icon name="reload-outline" slot="end"></ion-icon></ion-button></section>
+    } @else if (!hasHomes) {
+      <section class="dashboard-empty vx-stagger" aria-live="polite">
+        <div class="empty-orb home-orb"><ion-icon name="home-outline"></ion-icon><i></i><i></i></div>
+        <p class="eyebrow">YOUR SECURITY JOURNEY · 01 / 03</p>
+        <h1>Start with a<br><em>trusted home.</em></h1>
+        <p>A home groups the doors and controllers you control. You can add one ESP32 controller to each door afterwards.</p>
+        <ion-item class="home-name-input" lines="none"><ion-icon name="home-outline" slot="start"></ion-icon><ion-input [(ngModel)]="newHomeName" maxlength="100" placeholder="Name your home, e.g. Main Home" aria-label="Home name"></ion-input></ion-item>
+        <ion-button class="primary-button" expand="block" (click)="createHome()" [disabled]="isCreatingHome">@if (isCreatingHome) { <ion-spinner name="crescent"></ion-spinner><span>Creating secure home…</span> } @else { <span>Create secure home</span><ion-icon name="arrow-forward-outline" slot="end"></ion-icon> }</ion-button>
       </section>
     } @else {
-    <!-- Welcome Banner -->
-    <div class="welcome-banner">
-      <h1 class="greeting">Good {{ greeting }} 👋</h1>
-      <p class="sub-greeting">Your secure home</p>
-    </div>
-    <!-- Stats Row -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <ion-icon name="home-outline" class="stat-icon"></ion-icon>
-        <div>
-          <div class="stat-number">{{ doors.length }}</div>
-          <div class="stat-label">Total</div>
-        </div>
-      </div>
-      <div class="stat-card success">
-        <ion-icon name="checkmark-circle-outline" class="stat-icon"></ion-icon>
-        <div>
-          <div class="stat-number">{{ onlineCount }}</div>
-          <div class="stat-label">Online</div>
-        </div>
-      </div>
-      <div class="stat-card danger">
-        <ion-icon name="alert-circle-outline" class="stat-icon"></ion-icon>
-        <div>
-          <div class="stat-number">{{ offlineCount }}</div>
-          <div class="stat-label">Offline</div>
-        </div>
-      </div>
-    </div>
-    <!-- Door List -->
-    <div class="door-section">
-      <div class="section-header">
-        <h2>Your Doors</h2>
-        <span>{{ doors.length }} devices</span>
-        <ion-button fill="clear" class="view-all-btn" (click)="viewAllDoors()">
-          View All
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-      </div>
-      <div class="door-grid">
-        @for (door of doors; track door) {
-          <div class="door-card" [class.offline]="door.controllerStatus !== 'Online'">
-            <div class="door-card-header">
-              <div class="door-status">
-                <span class="status-dot" [class.online]="door.controllerStatus === 'Online'" [class.offline]="door.controllerStatus !== 'Online'"></span>
-                <span class="status-label">{{ door.controllerStatus }} · {{ door.lockStatus }}</span>
-              </div>
-              <ion-button fill="clear" class="more-btn" (click)="showDoorOptions(door)">
-                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-              </ion-button>
-            </div>
-            <div class="door-card-body">
-              <div class="door-icon">
-                <ion-icon [name]="door.lockStatus === 'Locked' || door.lockStatus === 'EmergencyLocked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon>
-              </div>
-              <div class="door-info">
-                <div class="door-name">{{ door.name }}</div>
-                <div class="door-location">
-                  <ion-icon name="location-outline" class="location-icon"></ion-icon>
-                  {{ door.home }}
-                </div>
-                <div class="door-meta">
-                  <ion-icon name="time-outline"></ion-icon>
-                  {{ door.lastActivity }}
-                </div>
-              </div>
-              <ion-button
-                class="unlock-btn"
-                [disabled]="!canUnlock(door)"
-                (click)="unlockDoor(door.id)">
-                <ion-icon slot="start" name="key-outline"></ion-icon>
-                Unlock
-              </ion-button>
-            </div>
-          </div>
-        }
+      <section class="dashboard-heading">
+        <div><p class="eyebrow">LIVE SECURITY OVERVIEW</p><h1>Good {{ greeting }}<span class="wave">⌁</span></h1><p>Your home is being watched over.</p></div>
+        <div class="network-chip"><i></i><span>{{ onlineCount }} LIVE</span></div>
+      </section>
+      <section class="status-strip vx-stagger" aria-label="Security status">
+        <article class="metric-card"><div class="metric-icon violet"><ion-icon name="grid-outline"></ion-icon></div><strong>{{ doors.length }}</strong><span>Doors connected</span></article>
+        <article class="metric-card"><div class="metric-icon green"><ion-icon name="radio-outline"></ion-icon></div><strong>{{ onlineCount }}</strong><span>Controllers live</span></article>
+        <article class="metric-card"><div class="metric-icon amber"><ion-icon name="shield-outline"></ion-icon></div><strong>{{ offlineCount }}</strong><span>Need attention</span></article>
+      </section>
+      <section class="door-section">
+        <div class="section-title"><div><p>DOOR CONTROL</p><h2>Your protected entries</h2></div><button type="button" (click)="viewAllDoors()">Manage <ion-icon name="arrow-forward-outline"></ion-icon></button></div>
         @if (doors.length === 0) {
-          <div class="empty-door-state">
-            <ion-icon name="hardware-chip-outline"></ion-icon>
-            <h3>No doors connected yet</h3>
-            <p>Register an ESP32 controller, finish physical provisioning, then link its door.</p>
-            <ion-button fill="outline" (click)="addDoor()">Set up a controller</ion-button>
+          <article class="no-door-card"><div><ion-icon name="hardware-chip-outline"></ion-icon></div><h3>No controller connected</h3><p>Bring the ESP32 to its physical door and add it to your trusted network.</p><ion-button fill="clear" (click)="addDoor()">Set up controller <ion-icon slot="end" name="arrow-forward-outline"></ion-icon></ion-button></article>
+        } @else {
+          <div class="door-stack vx-stagger">
+            @for (door of doors; track door) {
+              <article class="door-card" [class.offline]="door.controllerStatus !== 'Online'" [class.action-active]="activeDoorId === door.id">
+                <div class="door-card-top"><div class="door-live"><i [class.online]="door.controllerStatus === 'Online'"></i><span>{{ door.controllerStatus === 'Online' ? 'CONTROLLER LIVE' : 'CONTROLLER OFFLINE' }}</span></div><button type="button" (click)="showDoorOptions(door)" aria-label="View door details"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
+                <div class="door-main"><div class="lock-orb" [class.unlocked]="door.lockStatus !== 'Locked' && door.lockStatus !== 'EmergencyLocked'"><ion-icon [name]="door.lockStatus === 'Locked' || door.lockStatus === 'EmergencyLocked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon></div><div class="door-copy"><h3>{{ door.name }}</h3><p><ion-icon name="location-outline"></ion-icon>{{ door.home }}</p><span><ion-icon name="time-outline"></ion-icon>{{ door.lastActivity }}</span></div></div>
+                <div class="door-card-bottom"><div class="security-rule"><ion-icon [name]="door.requiresFace ? 'scan-outline' : 'shield-checkmark-outline'"></ion-icon>{{ door.requiresFace ? 'Face + proximity required' : 'Proximity required' }}</div><ion-button class="unlock-button" [disabled]="!canUnlock(door) || actionState === 'loading'" (click)="unlockDoor(door.id)">@if (activeDoorId === door.id && actionState === 'loading') { <ion-spinner name="crescent"></ion-spinner> } @else { <ion-icon slot="start" name="key-outline"></ion-icon><span>Unlock</span> }</ion-button></div>
+              </article>
+            }
           </div>
         }
-      </div>
-    </div>
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <ion-button fill="outline" class="quick-action-btn" (click)="addDoor()">
-        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Add Door
-      </ion-button>
-      <ion-button fill="outline" class="quick-action-btn" (click)="viewAuditLog()">
-        <ion-icon name="document-text-outline" slot="start"></ion-icon>
-        Audit Logs
-      </ion-button>
-    </div>
+      </section>
+      <section class="quick-grid vx-stagger"><button type="button" (click)="addDoor()"><span class="quick-icon"><ion-icon name="add-outline"></ion-icon></span><span><strong>Add controller</strong><small>Connect an ESP32</small></span><ion-icon name="chevron-forward-outline"></ion-icon></button><button type="button" (click)="viewAuditLog()"><span class="quick-icon cyan"><ion-icon name="pulse-outline"></ion-icon></span><span><strong>Security activity</strong><small>Review access events</small></span><ion-icon name="chevron-forward-outline"></ion-icon></button></section>
     }
+  </main>
+
+  @if (selectedDoor) {
+    <div class="details-scrim" (click)="closeDoorDetails()"><aside class="door-details" (click)="$event.stopPropagation()"><button class="close-details" type="button" (click)="closeDoorDetails()"><ion-icon name="close-outline"></ion-icon></button><div class="detail-icon"><ion-icon name="hardware-chip-outline"></ion-icon></div><p>CONTROLLER DETAILS</p><h2>{{ selectedDoor.name }}</h2><dl><div><dt>Controller</dt><dd>{{ selectedDoor.controllerStatus }}</dd></div><div><dt>Lock state</dt><dd>{{ selectedDoor.lockStatus }}</dd></div><div><dt>Verification</dt><dd>{{ selectedDoor.requiresFace ? 'Face and proximity' : 'Nearby presence' }}</dd></div></dl></aside></div>
+  }
+
+  @if (actionState !== 'idle') {
+    <div class="action-scrim" [class.loading]="actionState === 'loading'"><section class="action-feedback" [class.success]="actionState === 'success'" [class.error]="actionState === 'error'"><div class="feedback-orb">@if (actionState === 'loading') { <ion-spinner name="crescent"></ion-spinner> } @else { <ion-icon [name]="actionState === 'success' ? 'checkmark-outline' : 'close-outline'"></ion-icon> }</div><p>{{ actionState === 'loading' ? 'SECURE ACTION IN PROGRESS' : actionState === 'success' ? 'REQUEST PROTECTED' : 'REQUEST STOPPED' }}</p><h2>{{ actionTitle }}</h2><span>{{ actionDescription }}</span>@if (actionState !== 'loading') { <ion-button expand="block" class="primary-button" (click)="dismissDoorAction()">Done</ion-button> }</section></div>
   }
 </ion-content>

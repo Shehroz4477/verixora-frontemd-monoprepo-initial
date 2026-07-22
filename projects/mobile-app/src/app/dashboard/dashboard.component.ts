@@ -51,6 +51,11 @@ export class DashboardComponent implements OnInit {
   hasHomes = false;
   newHomeName = '';
   errorMessage = '';
+  selectedDoor: Door | null = null;
+  activeDoorId: string | null = null;
+  actionState: 'idle' | 'loading' | 'success' | 'error' = 'idle';
+  actionTitle = '';
+  actionDescription = '';
 
   constructor(
     private auth: AuthService,
@@ -140,8 +145,12 @@ export class DashboardComponent implements OnInit {
     if (!door || !this.canUnlock(door)) return;
 
     const idempotencyKey = crypto.randomUUID();
+    this.activeDoorId = door.id;
+    this.actionState = 'loading';
+    this.actionTitle = `Preparing ${door.name}`;
+    this.actionDescription = 'Checking the secure door access policy.';
     if (this.auth.isMockMode()) {
-      alert(`Unlock request queued for "${door.name}" (mock mode).`);
+      this.completeDoorAction('Unlock request queued', `${door.name} is ready for controller confirmation in mock mode.`);
       return;
     }
 
@@ -149,6 +158,8 @@ export class DashboardComponent implements OnInit {
     formData.append('idempotencyKey', idempotencyKey);
     if (door.requiresFace) {
       try {
+        this.actionTitle = 'Face verification required';
+        this.actionDescription = 'Capture a clear face image to continue the protected unlock request.';
         const image = await Camera.getPhoto({
           quality: 80,
           allowEditing: false,
@@ -156,23 +167,25 @@ export class DashboardComponent implements OnInit {
           source: CameraSource.Camera
         });
         if (!image.base64String) {
-          alert('A face capture is required to unlock this door.');
+          this.failDoorAction('Face verification was not completed', 'A clear face capture is required. The door remains locked.');
           return;
         }
         formData.append('faceImage', this.base64toBlob(image.base64String), 'unlock-face.jpg');
       } catch {
-        alert('Face capture was cancelled. The door remains locked.');
+        this.failDoorAction('Face verification was cancelled', 'No unlock command was sent. The door remains locked.');
         return;
       }
     }
     try {
+      this.actionTitle = 'Sending encrypted request';
+      this.actionDescription = 'Proving your nearby presence to the controller.';
       const result = await firstValueFrom(this.api.postMultipart<UnlockResponse>(`/locks/${doorId}/unlock`, formData));
       if (!result.commandId) throw new Error('The server did not create a controller command.');
       await this.nearbyPresence.proveNearbyPresence(result.commandId);
-      alert(`Presence proof sent for "${door.name}". ${result.message || 'Waiting for controller acknowledgement.'}`);
+      this.completeDoorAction('Presence proof sent', result.message || `Waiting for ${door.name} controller acknowledgement.`);
       this.loadDoors();
     } catch (err: any) {
-      alert(err?.error?.error || err?.message || 'The nearby presence proof failed. The door remains locked.');
+      this.failDoorAction('Unlock request rejected', err?.error?.error || err?.message || 'The nearby presence proof failed. The door remains locked.');
     }
   }
 
@@ -205,7 +218,16 @@ export class DashboardComponent implements OnInit {
   }
 
   showDoorOptions(door: Door): void {
-    alert(`${door.name}\nController: ${door.controllerStatus}\nLock: ${door.lockStatus}\nFace verification: ${door.requiresFace ? 'required' : 'not required'}`);
+    this.selectedDoor = door;
+  }
+
+  closeDoorDetails(): void {
+    this.selectedDoor = null;
+  }
+
+  dismissDoorAction(): void {
+    this.actionState = 'idle';
+    this.activeDoorId = null;
   }
 
   private toDoor(lockItem: SmartLockDto, home: HomeDto): Door {
@@ -225,5 +247,17 @@ export class DashboardComponent implements OnInit {
     const values = new Uint8Array(bytes.length);
     for (let index = 0; index < bytes.length; index++) values[index] = bytes.charCodeAt(index);
     return new Blob([values], { type: 'image/jpeg' });
+  }
+
+  private completeDoorAction(title: string, description: string): void {
+    this.actionState = 'success';
+    this.actionTitle = title;
+    this.actionDescription = description;
+  }
+
+  private failDoorAction(title: string, description: string): void {
+    this.actionState = 'error';
+    this.actionTitle = title;
+    this.actionDescription = description;
   }
 }

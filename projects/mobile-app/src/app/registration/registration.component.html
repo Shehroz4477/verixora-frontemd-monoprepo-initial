@@ -1,108 +1,78 @@
-<ion-content class="register-content">
-  <main class="register-wrapper">
-    <section class="register-card" aria-labelledby="register-title">
-      <header class="brand">
-        <div class="brand-icon" aria-hidden="true"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
-        <p class="eyebrow">VERIXORA MOBILE</p>
-        <h1 class="brand-title" id="register-title">Create your secure account</h1>
-        <p class="brand-subtitle">One phone number and one Android device are linked to one account.</p>
-      </header>
+<ion-content class="register-content" [fullscreen]="true">
+  <main class="register-shell vx-page-enter" aria-labelledby="register-title">
+    <div class="signal-grid" aria-hidden="true"></div>
+    <header class="register-hero">
+      <div class="brand-row"><div class="brand-mark"><ion-icon name="finger-print-outline"></ion-icon></div><span>VERIXORA</span><span class="setup-chip">SETUP 01</span></div>
+      <p class="eyebrow">TRUSTED IDENTITY ENROLMENT</p>
+      <h1 id="register-title">Make this device<br><em>your key.</em></h1>
+      <p>One mobile number and one Android device create one protected Verixora identity.</p>
+    </header>
 
+    <section class="register-panel" aria-live="polite">
+      <div class="panel-topline"><span>SECURE ONBOARDING</span><div class="progress-track"><i></i><i></i><i></i></div></div>
       @if (isCheckingEligibility) {
-        <section class="access-state loading-state" aria-live="polite">
-          <ion-spinner name="crescent"></ion-spinner>
-          <div>
-            <strong>Checking this device</strong>
-            <p>We are confirming whether registration is available.</p>
-          </div>
-        </section>
+        <section class="access-state loading-state"><div class="status-orb"><ion-spinner name="crescent"></ion-spinner></div><div><h2>Checking registration access</h2><p>Confirming this Android device can create a new identity.</p></div></section>
       } @else if (!canRegister) {
-        <section class="access-state blocked-state" aria-live="polite">
-          <ion-icon name="phone-portrait-outline"></ion-icon>
+        <section class="access-state blocked-state">
+          <div class="state-icon"><ion-icon name="shield-outline"></ion-icon></div>
           <h2>Registration is unavailable</h2>
           <p>{{ eligibility?.message || 'This device cannot create another account.' }}</p>
-          <ion-button expand="block" class="primary-action" (click)="goToLogin()">Go to sign in</ion-button>
-          <ion-button fill="clear" expand="block" (click)="retryEligibility()">Check again</ion-button>
+          <ion-button expand="block" class="primary-action" (click)="goToLogin()">Go to secure sign in <ion-icon name="arrow-forward-outline" slot="end"></ion-icon></ion-button>
+          <button class="text-action" type="button" (click)="retryEligibility()">Check device again</button>
         </section>
       } @else {
-        <form class="form" (ngSubmit)="register()" novalidate>
-          <section class="access-state ready-state" aria-live="polite">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            <span>{{ eligibility?.message }}</span>
-          </section>
-
-          <div class="input-group country-group">
-            <label class="input-label">Country</label>
-            <button class="country-select-btn" (click)="openCountrySelector()" type="button">
-              <span class="country-flag">{{ selectedCountry?.flag || '🌍' }}</span>
-              <span class="country-name">{{ selectedCountry?.name || 'Select country' }}</span>
-              <span class="country-dial">{{ selectedCountry?.dial || '' }}</span>
-              <ion-icon name="chevron-down-outline" class="country-arrow"></ion-icon>
+        <form class="register-form" (ngSubmit)="register()" novalidate>
+          <section class="inline-state"><ion-icon name="checkmark-circle-outline"></ion-icon><span>{{ eligibility?.message }}</span></section>
+          <div class="input-group">
+            <label>COUNTRY AND DIAL CODE</label>
+            <button class="country-select" type="button" (click)="openCountrySelector()">
+              <span class="country-flag">{{ selectedCountry?.flag }}</span><span class="country-name">{{ selectedCountry?.name || 'Select country' }}</span><span class="country-dial">{{ selectedCountry?.dial }}</span><ion-icon name="chevron-down-outline"></ion-icon>
             </button>
           </div>
-
           <div class="input-group">
-            <label class="input-label">Mobile number</label>
+            <label>MOBILE NUMBER</label>
             <ion-item class="input-item" lines="none" [class.error]="phoneTouched && !isPhoneValid" [class.valid]="phoneTouched && isPhoneValid">
-              <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
-              <ion-input type="tel" inputmode="tel" autocomplete="tel" placeholder="300 1234567" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="phoneTouched = true" (ionBlur)="phoneTouched = true; checkPhoneEligibility()" class="input-field"></ion-input>
-              @if (phoneTouched && isPhoneValid) { <ion-icon name="checkmark-circle-outline" slot="end" class="valid-icon"></ion-icon> }
-              @if (phoneTouched && phoneError) { <ion-icon name="alert-circle-outline" slot="end" class="error-icon"></ion-icon> }
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              <ion-input type="tel" inputmode="tel" autocomplete="tel" placeholder="300 1234567" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="phoneTouched = true" (ionBlur)="phoneTouched = true; checkPhoneEligibility()"></ion-input>
+              @if (phoneTouched && isPhoneValid) { <ion-icon class="valid-icon" name="checkmark-circle" slot="end"></ion-icon> }
             </ion-item>
             @if (phoneTouched && phoneError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ phoneError }}</p> }
-            @if (!phoneError && selectedCountry) { <p class="phone-hint"><ion-icon name="information-circle-outline"></ion-icon>Use {{ selectedCountry.minDigits }}–{{ selectedCountry.maxDigits }} local digits for {{ selectedCountry.name }}.</p> }
+            @if (!phoneError && selectedCountry) { <p class="field-hint">Use {{ selectedCountry.minDigits }}–{{ selectedCountry.maxDigits }} local digits for {{ selectedCountry.name }}.</p> }
           </div>
-
           <div class="input-group">
-            <label class="input-label">Create password</label>
+            <label>CREATE PASSWORD</label>
             <ion-item class="input-item" lines="none" [class.error]="passwordTouched && !isPasswordValid" [class.valid]="passwordTouched && isPasswordValid">
-              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
-              <ion-input type="password" autocomplete="new-password" placeholder="Create a strong password" [(ngModel)]="password" name="password" (ionFocus)="passwordTouched = true" (ionBlur)="passwordTouched = true" class="input-field"></ion-input>
-              @if (passwordTouched && isPasswordValid) { <ion-icon name="checkmark-circle-outline" slot="end" class="valid-icon"></ion-icon> }
+              <ion-icon name="key-outline" slot="start"></ion-icon>
+              <ion-input type="password" autocomplete="new-password" placeholder="Create a strong password" [(ngModel)]="password" name="password" (ionFocus)="passwordTouched = true" (ionBlur)="passwordTouched = true"></ion-input>
+              @if (passwordTouched && isPasswordValid) { <ion-icon class="valid-icon" name="checkmark-circle" slot="end"></ion-icon> }
             </ion-item>
-            @if (passwordTouched) {
-              <div class="password-checklist" aria-label="Password requirements">
-                <span [class.passed]="passwordChecks.minLength"><ion-icon [name]="passwordChecks.minLength ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>8+ characters</span>
-                <span [class.passed]="passwordChecks.hasUppercase"><ion-icon [name]="passwordChecks.hasUppercase ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>uppercase</span>
-                <span [class.passed]="passwordChecks.hasNumber"><ion-icon [name]="passwordChecks.hasNumber ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>number</span>
-                <span [class.passed]="passwordChecks.hasSpecialChar"><ion-icon [name]="passwordChecks.hasSpecialChar ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>symbol</span>
-              </div>
-            }
+            @if (passwordTouched) { <div class="password-grid"><span [class.passed]="passwordChecks.minLength"><ion-icon [name]="passwordChecks.minLength ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>8+ chars</span><span [class.passed]="passwordChecks.hasUppercase"><ion-icon [name]="passwordChecks.hasUppercase ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>uppercase</span><span [class.passed]="passwordChecks.hasNumber"><ion-icon [name]="passwordChecks.hasNumber ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>number</span><span [class.passed]="passwordChecks.hasSpecialChar"><ion-icon [name]="passwordChecks.hasSpecialChar ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>symbol</span></div> }
           </div>
-
           <div class="input-group">
-            <label class="input-label">Confirm password</label>
+            <label>CONFIRM PASSWORD</label>
             <ion-item class="input-item" lines="none" [class.error]="confirmTouched && !!confirmPasswordError" [class.valid]="confirmTouched && isConfirmValid">
-              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
-              <ion-input type="password" autocomplete="new-password" placeholder="Re-enter password" [(ngModel)]="confirmPassword" name="confirmPassword" (ionFocus)="confirmTouched = true" (ionBlur)="confirmTouched = true" class="input-field"></ion-input>
-              @if (confirmTouched && isConfirmValid) { <ion-icon name="checkmark-circle-outline" slot="end" class="valid-icon"></ion-icon> }
+              <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+              <ion-input type="password" autocomplete="new-password" placeholder="Re-enter your password" [(ngModel)]="confirmPassword" name="confirmPassword" (ionFocus)="confirmTouched = true" (ionBlur)="confirmTouched = true"></ion-input>
+              @if (confirmTouched && isConfirmValid) { <ion-icon class="valid-icon" name="checkmark-circle" slot="end"></ion-icon> }
             </ion-item>
             @if (confirmTouched && confirmPasswordError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ confirmPasswordError }}</p> }
           </div>
-
-          <div class="input-group">
-            <label class="input-label">Email <span>Optional, for web portal access</span></label>
-            <ion-item class="input-item" lines="none" [class.error]="emailTouched && !!emailError" [class.valid]="emailTouched && !emailError && !!email">
-              <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
-              <ion-input type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" [(ngModel)]="email" name="email" (ionFocus)="emailTouched = true" (ionBlur)="emailTouched = true" class="input-field"></ion-input>
+          <div class="input-group optional">
+            <label>EMAIL FOR WEB PORTAL <small>OPTIONAL</small></label>
+            <ion-item class="input-item" lines="none" [class.error]="emailTouched && !!emailError">
+              <ion-icon name="mail-outline" slot="start"></ion-icon>
+              <ion-input type="email" inputmode="email" autocomplete="email" placeholder="owner@example.com" [(ngModel)]="email" name="email" (ionFocus)="emailTouched = true" (ionBlur)="emailTouched = true"></ion-input>
             </ion-item>
             @if (emailTouched && emailError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ emailError }}</p> }
           </div>
-
-          <ion-button type="submit" class="register-btn" expand="block" [disabled]="isLoading || isCheckingEligibility">
-            @if (isLoading) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Send verification code</span> }
+          <ion-button type="submit" class="primary-action" expand="block" [disabled]="isLoading">
+            @if (isLoading) { <ion-spinner name="crescent"></ion-spinner><span>Sending verification code…</span> } @else { <span>Continue securely</span><ion-icon name="arrow-forward-outline" slot="end"></ion-icon> }
           </ion-button>
-
-          @if (message) {
-            <div class="message" [class]="messageType" aria-live="polite">
-              <ion-icon [name]="messageType === 'error' ? 'alert-circle-outline' : messageType === 'success' ? 'checkmark-circle-outline' : 'information-circle-outline'"></ion-icon>
-              {{ message }}
-            </div>
-          }
-
-          <p class="footer">Already registered? <button type="button" (click)="goToLogin()">Sign in on this device</button></p>
+          <p class="trust-note"><ion-icon name="lock-closed-outline"></ion-icon> Your device key is created and stored in Android secure hardware.</p>
         </form>
       }
+      @if (message) { <div class="response-message" [class]="messageType"><ion-icon [name]="messageType === 'error' ? 'alert-circle-outline' : messageType === 'success' ? 'checkmark-circle-outline' : 'information-circle-outline'"></ion-icon>{{ message }}</div> }
     </section>
+    <button class="sign-in-link" type="button" (click)="goToLogin()">Already registered? <span>Sign in</span></button>
   </main>
 </ion-content>

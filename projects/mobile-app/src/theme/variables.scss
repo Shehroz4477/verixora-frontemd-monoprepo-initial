@@ -2,33 +2,33 @@
 // VERIXORA ENTERPRISE DESIGN SYSTEM
 // ========================================
 
-// Colors (unchanged)
-$color-primary: #4F6AF5;
-$color-primary-dark: #3A56D4;
-$color-primary-light: #7B92F7;
-$color-secondary: #6C63FF;
-$color-accent: #00D4FF;
+// Midnight control-room palette
+$color-primary: #7C5CFF;
+$color-primary-dark: #5B3EE2;
+$color-primary-light: #A995FF;
+$color-secondary: #2ED9FF;
+$color-accent: #48F2C2;
 
-$color-success: #10B981;
-$color-danger: #EF4444;
-$color-warning: #F59E0B;
-$color-info: #3B82F6;
+$color-success: #42E8B0;
+$color-danger: #FF6B88;
+$color-warning: #FFBE62;
+$color-info: #58B7FF;
 
-$neutral-900: #0F172A;
-$neutral-800: #1E293B;
-$neutral-700: #334155;
-$neutral-600: #475569;
-$neutral-500: #64748B;
-$neutral-400: #94A3B8;
-$neutral-300: #CBD5E1;
-$neutral-200: #E2E8F0;
-$neutral-100: #F1F5F9;
-$neutral-50: #F8FAFC;
+$neutral-900: #070A14;
+$neutral-800: #0E1425;
+$neutral-700: #1B2540;
+$neutral-600: #33405C;
+$neutral-500: #72809E;
+$neutral-400: #9AA6BF;
+$neutral-300: #C7D0E1;
+$neutral-200: #E2E8F3;
+$neutral-100: #F2F6FC;
+$neutral-50: #F9FBFF;
 $white: #FFFFFF;
 
 // Gradients
-$gradient-primary: linear-gradient(135deg, $color-primary, $color-secondary);
-$gradient-accent: linear-gradient(135deg, $color-primary, $color-accent);
+$gradient-primary: linear-gradient(135deg, #A178FF 0%, $color-primary 45%, $color-secondary 100%);
+$gradient-accent: linear-gradient(135deg, $color-primary 0%, $color-secondary 56%, $color-accent 100%);
 
 // Responsive Font Sizes (using rem for better scaling)
 $font-size-xs: 0.75rem;    // 12px
@@ -88,6 +88,13 @@ $transition-slow: 0.5s ease;
   --vx-primary-light: #{$color-primary-light};
   --vx-secondary: #{$color-secondary};
   --vx-accent: #{$color-accent};
+  --vx-canvas: #{$neutral-900};
+  --vx-surface: rgba(14, 20, 37, 0.82);
+  --vx-surface-strong: #111a30;
+  --vx-surface-soft: rgba(124, 92, 255, 0.10);
+  --vx-border: rgba(170, 191, 232, 0.14);
+  --vx-text: #{$white};
+  --vx-muted: #{$neutral-400};
 
   --vx-gradient-primary: #{$gradient-primary};
   --vx-gradient-accent: #{$gradient-accent};
@@ -144,5 +151,5 @@ $transition-slow: 0.5s ease;
   --ion-color-danger-contrast: #{$white};
   --ion-color-danger-contrast-rgb: 255, 255, 255;
 
-  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ion-font-family: 'Inter', 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }

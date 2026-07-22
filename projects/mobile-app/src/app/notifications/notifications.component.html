@@ -1,29 +1,18 @@
-<ion-header>
-  <ion-toolbar color="transparent">
-    <ion-buttons slot="start">
-      <ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard"><ion-icon name="arrow-back-outline" class="back-icon"></ion-icon></ion-button>
-    </ion-buttons>
-    <ion-title class="toolbar-title">{{ title }}</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
+<ion-header class="ion-no-border"><ion-toolbar><ion-buttons slot="start"><ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard"><ion-icon name="arrow-back-outline"></ion-icon></ion-button></ion-buttons><ion-title>{{ title }}</ion-title><ion-buttons slot="end"><ion-button (click)="loadActivity()" aria-label="Refresh activity"><ion-icon name="refresh-outline"></ion-icon></ion-button></ion-buttons></ion-toolbar></ion-header>
+<ion-content [fullscreen]="true" class="activity-content">
   <ion-refresher slot="fixed" (ionRefresh)="loadActivity($event)"><ion-refresher-content></ion-refresher-content></ion-refresher>
-  <main class="activity-shell">
-    <section class="intro"><p class="eyebrow">Owner audit trail</p><h1>Access decisions and controller events</h1><p>Only homes you own appear here. Pull down to refresh the latest server-recorded events.</p></section>
-    <ion-card *ngIf="errorMessage" color="danger" role="alert"><ion-card-content>{{ errorMessage }}</ion-card-content></ion-card>
-    <ion-card *ngIf="isLoading" class="activity-card"><ion-card-content><ion-spinner name="crescent"></ion-spinner> Loading activity...</ion-card-content></ion-card>
-    <ion-list *ngIf="!isLoading && activity.length" lines="inset" class="activity-list">
-      <ion-item *ngFor="let item of activity">
-        <ion-icon slot="start" [name]="item.result ? 'checkmark-circle-outline' : 'alert-circle-outline'" [color]="item.result ? 'success' : 'danger'"></ion-icon>
-        <ion-label>
-          <h2>{{ item.action }}</h2>
-          <p>{{ item.homeName }} - {{ formatTimestamp(item.timestamp) }}</p>
-          <p *ngIf="item.details">{{ item.details }}</p>
-        </ion-label>
-        <ion-badge slot="end" [color]="item.result ? 'success' : 'danger'">{{ item.result ? 'Allowed' : 'Rejected' }}</ion-badge>
-      </ion-item>
-    </ion-list>
-    <ion-card *ngIf="!isLoading && !activity.length" class="activity-card"><ion-card-content>No security activity has been recorded for an owned home yet.</ion-card-content></ion-card>
+  <main class="activity-shell vx-page-enter">
+    <section class="activity-hero"><div class="hero-signal"><ion-icon name="pulse-outline"></ion-icon><i></i></div><div><p>IMMUTABLE AUDIT TRAIL</p><h1>Security activity</h1><span>Every important decision, in one place.</span></div></section>
+    @if (errorMessage) { <section class="activity-message error"><ion-icon name="cloud-offline-outline"></ion-icon><span>{{ errorMessage }}</span><button type="button" (click)="loadActivity()">Retry</button></section> }
+    @if (isLoading) { <section class="activity-loading"><ion-spinner name="crescent"></ion-spinner><span>Syncing recorded events…</span></section> }
+    @if (!isLoading && activity.length) {
+      <section class="activity-list vx-stagger">
+        @for (item of activity; track item.id) {
+          <article class="activity-item" [class.rejected]="!item.result"><div class="event-icon"><ion-icon [name]="item.result ? 'checkmark-outline' : 'close-outline'"></ion-icon></div><div class="event-copy"><div><span class="event-type">{{ item.action }}</span><span class="event-result">{{ item.result ? 'ALLOWED' : 'REJECTED' }}</span></div><strong>{{ item.homeName }}</strong><p>{{ item.details || 'Security event recorded by Verixora.' }}</p><time><ion-icon name="time-outline"></ion-icon>{{ formatTimestamp(item.timestamp) }}</time></div></article>
+        }
+      </section>
+    } @else if (!isLoading && !errorMessage) {
+      <section class="activity-empty"><div><ion-icon name="shield-checkmark-outline"></ion-icon></div><h2>Quiet is secure</h2><p>No security activity has been recorded for an owned home yet. Access requests and controller events will appear here.</p></section>
+    }
   </main>
 </ion-content>
