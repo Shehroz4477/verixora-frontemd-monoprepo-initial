@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { AuthService } from '../core/services/auth.service';
+import { AuthAccessEligibility, AuthService } from '../core/services/auth.service';
 import { CountryService, Country } from '../core/services/country.service';
-import { StorageService } from '../core/services/storage.service';
 import { ApiService } from '../core/services/api.service';
 import { CountrySelectorModalComponent } from '../country-selector-modal/country-selector-modal.component';
 import { finalize } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-registration',
@@ -24,6 +24,8 @@ export class RegistrationComponent implements OnInit {
   message: string = '';
   messageType: 'info' | 'success' | 'error' = 'info';
   isLoading: boolean = false;
+  isCheckingEligibility: boolean = true;
+  eligibility: AuthAccessEligibility | null = null;
   phoneTouched: boolean = false;
   passwordTouched: boolean = false;
   confirmTouched: boolean = false;
@@ -41,7 +43,6 @@ export class RegistrationComponent implements OnInit {
     private auth: AuthService,
     private api: ApiService,
     private countryService: CountryService,
-    private storage: StorageService,
     private modalController: ModalController,
     private router: Router
   ) {}
@@ -49,11 +50,16 @@ export class RegistrationComponent implements OnInit {
   async ngOnInit() {
     const detectedCode = await this.countryService.getCountryCode();
     this.selectedCountry = this.countryService.getCountryByCode(detectedCode);
+    await this.refreshEligibility();
   }
 
   // Country‑specific validation
   get phoneError(): string {
     if (!this.phoneTouched) return '';
+    return this.phoneValidationError;
+  }
+
+  private get phoneValidationError(): string {
     if (!this.phoneNumber) return 'Phone number is required';
 
     const cleaned = this.phoneNumber.replace(/\s/g, '');
@@ -77,7 +83,7 @@ export class RegistrationComponent implements OnInit {
   }
 
   get isPhoneValid(): boolean {
-    return !this.phoneError;
+    return !this.phoneValidationError;
   }
 
   // Password validation (unchanged)
@@ -122,7 +128,8 @@ export class RegistrationComponent implements OnInit {
   }
 
   get isFormValid(): boolean {
-    return this.isPhoneValid &&
+    return this.canRegister &&
+           this.isPhoneValid &&
            this.isPasswordValid &&
            this.isConfirmValid &&
            !this.emailError;
@@ -133,6 +140,10 @@ export class RegistrationComponent implements OnInit {
     const cleaned = this.phoneNumber.replace(/\s/g, '');
     if (cleaned.startsWith('+')) return cleaned;
     return this.selectedCountry.dial + cleaned;
+  }
+
+  get canRegister(): boolean {
+    return this.eligibility?.canRegister === true;
   }
 
   async openCountrySelector() {
@@ -146,13 +157,16 @@ export class RegistrationComponent implements OnInit {
         // Clear the phone number so user can re‑enter with new country
         this.phoneNumber = '';
         this.phoneTouched = false;
+        this.refreshEligibility();
       }
     });
     await modal.present();
   }
 
-  private async registerPhone(phone: string) {
-    await this.storage.set('registered_phone', phone);
+  async checkPhoneEligibility(): Promise<void> {
+    this.phoneTouched = true;
+    if (!this.isPhoneValid) return;
+    await this.refreshEligibility(this.fullPhoneNumber);
   }
 
   async register() {
@@ -165,10 +179,17 @@ export class RegistrationComponent implements OnInit {
       return;
     }
 
+    await this.refreshEligibility(this.fullPhoneNumber);
+    if (!this.canRegister) {
+      this.showMessage(this.eligibility?.message || 'Registration is not available for this device and number.', 'error');
+      return;
+    }
+
     this.isLoading = true;
     this.showMessage('Sending OTP...', 'info');
 
-    this.auth.sendRegistrationOtp(this.fullPhoneNumber)
+    const otpRequest = await this.auth.sendRegistrationOtp(this.fullPhoneNumber);
+    otpRequest
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
@@ -196,6 +217,24 @@ export class RegistrationComponent implements OnInit {
 
   goToLogin() {
     this.router.navigate(['/login']);
+  }
+
+  async retryEligibility(): Promise<void> {
+    await this.refreshEligibility(this.phoneNumber && this.isPhoneValid ? this.fullPhoneNumber : undefined);
+  }
+
+  private async refreshEligibility(phoneNumber?: string): Promise<void> {
+    this.isCheckingEligibility = true;
+    try {
+      const request = await this.auth.getAccessEligibility(phoneNumber);
+      this.eligibility = await firstValueFrom(request);
+    } catch (error) {
+      console.error('Unable to check registration eligibility.', error);
+      this.eligibility = null;
+      this.showMessage('Unable to verify this device. Check your connection and try again.', 'error');
+    } finally {
+      this.isCheckingEligibility = false;
+    }
   }
 
   private showMessage(text: string, type: 'info' | 'success' | 'error') {

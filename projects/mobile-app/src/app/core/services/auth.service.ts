@@ -18,6 +18,14 @@ interface AuthResponse {
   userId: string;
 }
 
+export interface AuthAccessEligibility {
+  canRegister: boolean;
+  canLogin: boolean;
+  deviceStatus: 'New' | 'Registered';
+  phoneStatus: 'NotChecked' | 'Available' | 'NotRegistered' | 'RegisteredToThisDevice' | 'RegisteredToAnotherDevice';
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
@@ -86,11 +94,30 @@ export class AuthService {
     }).pipe(switchMap(response => this.persistAuthenticatedResponse(response)));
   }
 
-  sendRegistrationOtp(phoneNumber: string): Observable<any> {
+  async getAccessEligibility(phoneNumber?: string): Promise<Observable<AuthAccessEligibility>> {
+    if (this.isMockMode()) {
+      return of({
+        canRegister: !phoneNumber,
+        canLogin: !!phoneNumber,
+        deviceStatus: phoneNumber ? 'Registered' : 'New',
+        phoneStatus: phoneNumber ? 'RegisteredToThisDevice' : 'NotChecked',
+        message: phoneNumber ? 'This number is registered on this device. Sign in to continue.' : 'This is a new device. Create an account to continue.'
+      });
+    }
+
+    const binding = await this.device.getDeviceBinding();
+    return this.api.post<AuthAccessEligibility>('/auth/access-eligibility', {
+      deviceId: binding.deviceId,
+      phoneNumber: phoneNumber?.trim() || null
+    });
+  }
+
+  async sendRegistrationOtp(phoneNumber: string): Promise<Observable<any>> {
     if (this.isMockMode()) {
       return of({ success: true, message: 'OTP sent (mock: 123456)' }).pipe(delay(500));
     }
-    return this.api.post('/auth/send-otp', { phoneNumber });
+    const binding = await this.device.getDeviceBinding();
+    return this.api.post('/auth/send-otp', { phoneNumber, deviceId: binding.deviceId });
   }
 
   async register(phoneNumber: string, password: string, otp: string, email?: string): Promise<Observable<AuthResponse>> {

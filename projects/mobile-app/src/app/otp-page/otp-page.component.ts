@@ -98,7 +98,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     // For registration or login, use appropriate OTP endpoint
     const obs = this.isRegistration
-      ? this.auth.sendRegistrationOtp(this.phoneNumber)
+      ? await this.auth.sendRegistrationOtp(this.phoneNumber)
       : await this.auth.sendLoginOtp(this.phoneNumber, this.password);
     obs.subscribe({
       next: () => {

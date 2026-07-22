@@ -47,6 +47,9 @@ export class DashboardComponent implements OnInit {
   doors: Door[] = [];
   greeting = '';
   isLoading = true;
+  isCreatingHome = false;
+  hasHomes = false;
+  newHomeName = '';
   errorMessage = '';
 
   constructor(
@@ -67,6 +70,7 @@ export class DashboardComponent implements OnInit {
     this.errorMessage = '';
 
     if (this.auth.isMockMode()) {
+      this.hasHomes = true;
       this.doors = [
         { id: '1', name: 'Front Door', home: 'Main Home', controllerStatus: 'Online', lockStatus: 'Locked', requiresFace: true, lastActivity: '2 hours ago' },
         { id: '2', name: 'Back Door', home: 'Main Home', controllerStatus: 'Online', lockStatus: 'Locked', requiresFace: false, lastActivity: '5 hours ago' },
@@ -78,6 +82,7 @@ export class DashboardComponent implements OnInit {
 
     this.api.get<HomeDto[]>('/homes').pipe(
       switchMap(homes => {
+        this.hasHomes = homes.length > 0;
         if (homes.length === 0) {
           return of([] as Door[]);
         }
@@ -99,6 +104,27 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  async createHome(): Promise<void> {
+    const name = this.newHomeName.trim();
+    if (!name) {
+      this.errorMessage = 'Enter a name for your first home.';
+      return;
+    }
+
+    this.isCreatingHome = true;
+    this.errorMessage = '';
+    try {
+      await firstValueFrom(this.api.post<HomeDto>('/homes', { name }));
+      this.newHomeName = '';
+      this.hasHomes = true;
+      this.loadDoors();
+    } catch (err: any) {
+      this.errorMessage = err?.error?.error || 'Could not create the home. Please try again.';
+    } finally {
+      this.isCreatingHome = false;
+    }
   }
 
   get onlineCount(): number {

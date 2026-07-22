@@ -37,6 +37,21 @@
   }
 
   @if (!isLoading && !errorMessage) {
+    @if (!hasHomes) {
+      <section class="empty-home-state" aria-live="polite">
+        <div class="empty-home-icon"><ion-icon name="home-outline"></ion-icon></div>
+        <p class="eyebrow">STEP 1 OF 3</p>
+        <h1>Set up your first home</h1>
+        <p>Create a home before registering a controller. You can add one ESP32 controller per door after this step.</p>
+        <ion-item class="home-name-input" lines="none">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          <ion-input [(ngModel)]="newHomeName" maxlength="100" placeholder="e.g. Main Home" aria-label="Home name"></ion-input>
+        </ion-item>
+        <ion-button class="create-home-btn" expand="block" (click)="createHome()" [disabled]="isCreatingHome">
+          @if (isCreatingHome) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Create secure home</span> }
+        </ion-button>
+      </section>
+    } @else {
     <!-- Welcome Banner -->
     <div class="welcome-banner">
       <h1 class="greeting">Good {{ greeting }} 👋</h1>
@@ -113,6 +128,14 @@
             </div>
           </div>
         }
+        @if (doors.length === 0) {
+          <div class="empty-door-state">
+            <ion-icon name="hardware-chip-outline"></ion-icon>
+            <h3>No doors connected yet</h3>
+            <p>Register an ESP32 controller, finish physical provisioning, then link its door.</p>
+            <ion-button fill="outline" (click)="addDoor()">Set up a controller</ion-button>
+          </div>
+        }
       </div>
     </div>
     <!-- Quick Actions -->
@@ -126,5 +149,6 @@
         Audit Logs
       </ion-button>
     </div>
+    }
   }
 </ion-content>

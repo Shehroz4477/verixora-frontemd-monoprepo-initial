@@ -1,6 +1,96 @@
 @use 'variables' as *;
 @use 'mixins' as *;
 
+.eyebrow {
+  color: $color-primary-light;
+  font-size: 11px;
+  font-weight: $font-bold;
+  letter-spacing: 1.4px;
+  margin: 0 0 $space-2;
+}
+
+.access-state {
+  border: 1px solid $neutral-700;
+  border-radius: $radius-lg;
+  padding: $space-4;
+  text-align: center;
+
+  h2 { color: $white; font-size: $font-size-lg; margin: $space-2 0; }
+  p { color: $neutral-400; font-size: $font-size-sm; line-height: 1.5; margin: 0; }
+
+  &.loading-state {
+    align-items: center;
+    background: rgba($color-info, 0.08);
+    border-color: rgba($color-info, 0.28);
+    display: flex;
+    gap: $space-3;
+    text-align: left;
+
+    ion-spinner { color: $color-info; flex-shrink: 0; }
+    strong { color: $white; display: block; font-size: $font-size-sm; margin-bottom: 2px; }
+  }
+
+  &.blocked-state {
+    background: rgba($color-danger, 0.08);
+    border-color: rgba($color-danger, 0.32);
+    > ion-icon { color: $color-danger; font-size: 36px; }
+    ion-button { margin-top: $space-3; }
+  }
+
+  &.ready-state {
+    align-items: center;
+    background: rgba($color-success, 0.08);
+    border-color: rgba($color-success, 0.28);
+    color: $color-success;
+    display: flex;
+    font-size: $font-size-sm;
+    gap: $space-2;
+    text-align: left;
+    ion-icon { flex-shrink: 0; font-size: 22px; }
+  }
+}
+
+.primary-action {
+  --background: var(--vx-gradient-primary);
+  --border-radius: #{$radius-lg};
+  --box-shadow: none;
+  text-transform: none;
+}
+
+.input-label span {
+  color: $neutral-500;
+  font-size: 10px;
+  font-weight: $font-regular;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.password-checklist {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  span {
+    align-items: center;
+    color: $neutral-500;
+    display: flex;
+    font-size: $font-size-xs;
+    gap: 4px;
+    ion-icon { font-size: 14px; }
+    &.passed { color: $color-success; }
+  }
+}
+
+.footer button {
+  background: transparent;
+  border: 0;
+  color: $color-primary;
+  cursor: pointer;
+  font: inherit;
+  font-weight: $font-semibold;
+  padding: 0;
+}
+
 .register-content {
   --background: #{$neutral-900};
 }

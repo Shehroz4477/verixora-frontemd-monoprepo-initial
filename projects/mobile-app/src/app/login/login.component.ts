@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
+import { AuthAccessEligibility, AuthService } from '../core/services/auth.service';
 import { CountryService } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
 import { finalize } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -19,16 +20,10 @@ export class LoginComponent implements OnInit {
   message: string = '';
   messageType: 'info' | 'success' | 'error' = 'info';
   isLoading: boolean = false;
+  isCheckingEligibility: boolean = true;
+  eligibility: AuthAccessEligibility | null = null;
   phoneTouched: boolean = false;
   passwordTouched: boolean = false;
-
-  passwordChecks = {
-    minLength: false,
-    hasUppercase: false,
-    hasLowercase: false,
-    hasNumber: false,
-    hasSpecialChar: false
-  };
 
   constructor(
     private auth: AuthService,
@@ -46,6 +41,7 @@ export class LoginComponent implements OnInit {
       this.phoneNumber = registeredPhone;
       this.isPhoneReadOnly = true;
     }
+    await this.refreshEligibility(registeredPhone || undefined);
   }
 
   get fullPhoneNumber(): string {
@@ -56,6 +52,10 @@ export class LoginComponent implements OnInit {
 
   get phoneError(): string {
     if (!this.phoneTouched) return '';
+    return this.phoneValidationError;
+  }
+
+  private get phoneValidationError(): string {
     if (!this.phoneNumber) return 'Phone number is required';
     const cleaned = this.fullPhoneNumber.replace(/[^+\d]/g, '');
     if (cleaned.length < 8) return 'Enter a valid phone number (at least 8 digits)';
@@ -63,39 +63,52 @@ export class LoginComponent implements OnInit {
   }
 
   get isPhoneValid(): boolean {
-    return !this.phoneError;
+    return !this.phoneValidationError;
   }
 
   get isPasswordValid(): boolean {
-    const pwd = this.password;
-    this.passwordChecks.minLength = pwd.length >= 8;
-    this.passwordChecks.hasUppercase = /[A-Z]/.test(pwd);
-    this.passwordChecks.hasLowercase = /[a-z]/.test(pwd);
-    this.passwordChecks.hasNumber = /\d/.test(pwd);
-    this.passwordChecks.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-    return pwd.length >= 8 &&
-           /[A-Z]/.test(pwd) &&
-           /[a-z]/.test(pwd) &&
-           /\d/.test(pwd) &&
-           /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    return this.password.trim().length > 0;
   }
 
   get passwordError(): string {
     if (!this.passwordTouched) return '';
     if (!this.password) return 'Password is required';
-    if (!this.isPasswordValid) return 'Password does not meet requirements';
+    if (!this.isPasswordValid) return 'Enter your password';
     return '';
   }
 
   get isFormValid(): boolean {
-    return this.isPhoneValid && this.isPasswordValid;
+    return this.canLogin && this.isPhoneValid && this.isPasswordValid;
+  }
+
+  get deviceIsNew(): boolean {
+    return this.eligibility?.deviceStatus === 'New';
+  }
+
+  get needsPhoneNumber(): boolean {
+    return this.eligibility?.deviceStatus === 'Registered' && !this.phoneNumber;
+  }
+
+  get canLogin(): boolean {
+    return this.eligibility?.canLogin === true;
   }
 
   private async registerPhone(phone: string) {
     await this.storage.set('registered_phone', phone);
   }
 
+  async checkPhoneEligibility(): Promise<void> {
+    this.phoneTouched = true;
+    if (!this.isPhoneValid) return;
+    await this.refreshEligibility(this.fullPhoneNumber);
+  }
+
   async sendOtp() {
+    await this.refreshEligibility(this.fullPhoneNumber);
+    if (!this.canLogin) {
+      this.showMessage(this.eligibility?.message || 'This device is not eligible to sign in.', 'error');
+      return;
+    }
     if (!this.isFormValid) {
       this.phoneTouched = true;
       this.passwordTouched = true;
@@ -130,6 +143,38 @@ export class LoginComponent implements OnInit {
 
   goToRegister() {
     this.router.navigate(['/register']);
+  }
+
+  async useDifferentNumber(): Promise<void> {
+    await this.storage.remove('registered_phone');
+    this.phoneNumber = '';
+    this.password = '';
+    this.isPhoneReadOnly = false;
+    this.phoneTouched = false;
+    this.passwordTouched = false;
+    await this.refreshEligibility();
+  }
+
+  async retryEligibility(): Promise<void> {
+    await this.refreshEligibility(this.phoneNumber && this.isPhoneValid ? this.fullPhoneNumber : undefined);
+  }
+
+  private async refreshEligibility(phoneNumber?: string): Promise<void> {
+    this.isCheckingEligibility = true;
+    try {
+      const request = await this.auth.getAccessEligibility(phoneNumber);
+      this.eligibility = await firstValueFrom(request);
+      if (this.eligibility.canLogin && phoneNumber) {
+        await this.registerPhone(phoneNumber);
+        this.isPhoneReadOnly = true;
+      }
+    } catch (error) {
+      console.error('Unable to check login eligibility.', error);
+      this.eligibility = null;
+      this.showMessage('Unable to verify this device. Check your connection and try again.', 'error');
+    } finally {
+      this.isCheckingEligibility = false;
+    }
   }
 
   private showMessage(text: string, type: 'info' | 'success' | 'error') {
