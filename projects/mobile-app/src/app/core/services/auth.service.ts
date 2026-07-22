@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { tap, delay } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable, of, throwError } from 'rxjs';
+import { delay, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { SecureStorageService } from './secure-storage.service';
 import { DeviceService } from './device.service';
@@ -13,11 +13,17 @@ interface AuthData {
   expiresAt: number;
 }
 
+interface AuthResponse {
+  token: string;
+  userId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
   private authData: AuthData | null = null;
+  private readonly initialization: Promise<void>;
 
   constructor(
     private api: ApiService,
@@ -25,7 +31,7 @@ export class AuthService {
     private device: DeviceService,
     private router: Router
   ) {
-    this.loadAuthData();
+    this.initialization = this.loadAuthData();
   }
 
   private async loadAuthData(): Promise<void> {
@@ -34,7 +40,9 @@ export class AuthService {
       this.authData = data;
       this.isLoggedInSubject.next(true);
     } else {
-      await this.logout();
+      this.authData = null;
+      await this.secureStorage.remove('auth');
+      this.isLoggedInSubject.next(false);
     }
   }
 
@@ -50,7 +58,7 @@ export class AuthService {
     return this.api.post('/auth/send-login-otp', { phoneNumber, password, ...binding });
   }
 
-  async login(phoneNumber: string, password: string, otp: string): Promise<Observable<any>> {
+  async login(phoneNumber: string, password: string, otp: string): Promise<Observable<AuthResponse>> {
     if (this.isMockMode()) {
       if (otp === '123456') {
         const mockData: AuthData = {
@@ -70,21 +78,12 @@ export class AuthService {
     }
 
     const binding = await this.device.getDeviceBinding();
-    return this.api.post<{ token: string; userId: string }>('/auth/login', {
+    return this.api.post<AuthResponse>('/auth/login', {
       phoneNumber,
       password,
       otp,
       ...binding
-    }).pipe(
-      tap(async (response) => {
-        const authData: AuthData = {
-          token: response.token,
-          userId: response.userId,
-          expiresAt: this.readJwtExpiry(response.token)
-        };
-        await this.handleAuthSuccess(authData);
-      })
-    );
+    }).pipe(switchMap(response => this.persistAuthenticatedResponse(response)));
   }
 
   sendRegistrationOtp(phoneNumber: string): Observable<any> {
@@ -94,25 +93,38 @@ export class AuthService {
     return this.api.post('/auth/send-otp', { phoneNumber });
   }
 
-  async register(phoneNumber: string, password: string, otp: string, email?: string): Promise<Observable<any>> {
+  async register(phoneNumber: string, password: string, otp: string, email?: string): Promise<Observable<AuthResponse>> {
     if (this.isMockMode()) {
-      return of({ success: true, userId: 'mock-user-id' }).pipe(delay(500));
+      return of({ token: 'mock-jwt-token', userId: 'mock-user-id' }).pipe(
+        delay(500),
+        switchMap(response => this.persistAuthenticatedResponse(response))
+      );
     }
     const binding = await this.device.getDeviceBinding();
-    return this.api.post('/auth/register', {
+    return this.api.post<AuthResponse>('/auth/register', {
       phoneNumber,
       password,
       confirmPassword: password,
       otp,
       email: email || '',
       ...binding
-    });
+    }).pipe(switchMap(response => this.persistAuthenticatedResponse(response)));
   }
 
   private async handleAuthSuccess(data: AuthData): Promise<void> {
     this.authData = data;
     await this.secureStorage.set('auth', data);
     this.isLoggedInSubject.next(true);
+  }
+
+  private persistAuthenticatedResponse(response: AuthResponse): Observable<AuthResponse> {
+    const authData: AuthData = {
+      token: response.token,
+      userId: response.userId,
+      expiresAt: this.readJwtExpiry(response.token)
+    };
+
+    return from(this.handleAuthSuccess(authData)).pipe(map(() => response));
   }
 
   async logout(): Promise<void> {
@@ -137,6 +149,11 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  async isAuthenticatedAfterInitialization(): Promise<boolean> {
+    await this.initialization;
+    return this.isAuthenticated();
   }
 
   private readJwtExpiry(token: string): number {

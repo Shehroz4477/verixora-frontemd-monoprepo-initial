@@ -9,6 +9,7 @@ import { DevicesComponent } from './devices/devices.component';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { ProfileComponent } from './profile/profile.component';
 import { FaceEnrollmentComponent } from './face-enrollment/face-enrollment.component';
+import { mobileAuthGuard } from './core/guards/mobile-auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -18,6 +19,7 @@ const routes: Routes = [
   {
     path: 'tabs',
     component: TabsComponent,
+    canActivate: [mobileAuthGuard],
     children: [
       { path: 'home', component: DashboardComponent },
       { path: 'devices', component: DevicesComponent },
