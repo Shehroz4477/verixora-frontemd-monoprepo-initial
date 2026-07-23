@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthAccessEligibility, AuthService } from '../core/services/auth.service';
 import { CountryService } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
+import { SoftKeyboardService } from '../core/services/soft-keyboard.service';
 import { finalize } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -29,6 +30,7 @@ export class LoginComponent implements OnInit {
     private auth: AuthService,
     private countryService: CountryService,
     private storage: StorageService,
+    private softKeyboard: SoftKeyboardService,
     private router: Router
   ) {}
 
@@ -106,6 +108,16 @@ export class LoginComponent implements OnInit {
     this.phoneTouched = true;
     if (!this.isPhoneValid) return;
     await this.refreshEligibility(this.fullPhoneNumber);
+  }
+
+  onPhoneFocus(): void {
+    this.phoneTouched = true;
+    void this.softKeyboard.showForFocusedInput();
+  }
+
+  onPasswordFocus(): void {
+    this.passwordTouched = true;
+    void this.softKeyboard.showForFocusedInput();
   }
 
   async sendOtp() {

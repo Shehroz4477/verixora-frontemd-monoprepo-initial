@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
         // BridgeActivity creates the Capacitor bridge in super.onCreate().
         // Register custom plugins first so they are included in that bridge.
         registerPlugin(DeviceKeyPlugin.class);
+        registerPlugin(SoftKeyboardPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

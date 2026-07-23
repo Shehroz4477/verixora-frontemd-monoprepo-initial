@@ -33,7 +33,7 @@
             <label>MOBILE NUMBER</label>
             <ion-item class="input-item" lines="none" [class.error]="phoneTouched && !isPhoneValid" [class.valid]="phoneTouched && isPhoneValid">
               <ion-icon name="call-outline" slot="start"></ion-icon>
-              <ion-input type="tel" inputmode="tel" autocomplete="tel" placeholder="300 1234567" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="phoneTouched = true" (ionBlur)="phoneTouched = true; checkPhoneEligibility()"></ion-input>
+              <ion-input type="tel" inputmode="tel" autocomplete="tel" placeholder="300 1234567" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="onFieldFocus('phone')" (ionBlur)="phoneTouched = true; checkPhoneEligibility()"></ion-input>
               @if (phoneTouched && isPhoneValid) { <ion-icon class="valid-icon" name="checkmark-circle" slot="end"></ion-icon> }
             </ion-item>
             @if (phoneTouched && phoneError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ phoneError }}</p> }

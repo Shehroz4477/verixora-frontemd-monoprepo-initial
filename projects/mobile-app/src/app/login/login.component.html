@@ -43,7 +43,7 @@
             <label>REGISTERED MOBILE NUMBER</label>
             <ion-item class="input-item" lines="none" [class.error]="phoneTouched && !isPhoneValid">
               <ion-icon name="call-outline" slot="start"></ion-icon>
-              <ion-input type="tel" inputmode="tel" autocomplete="tel" [placeholder]="dialCode + ' 300 1234567'" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="phoneTouched = true" (ionBlur)="phoneTouched = true"></ion-input>
+              <ion-input type="tel" inputmode="tel" autocomplete="tel" [placeholder]="dialCode + ' 300 1234567'" [(ngModel)]="phoneNumber" name="phoneNumber" (ionFocus)="onPhoneFocus()" (ionBlur)="phoneTouched = true"></ion-input>
             </ion-item>
             @if (phoneTouched && phoneError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ phoneError }}</p> }
             <p class="field-hint">Enter the number that was originally linked to this Android device.</p>
@@ -62,7 +62,7 @@
             <label>ACCOUNT PASSWORD</label>
             <ion-item class="input-item" lines="none" [class.error]="passwordTouched && !isPasswordValid">
               <ion-icon name="key-outline" slot="start"></ion-icon>
-              <ion-input type="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" name="password" (ionFocus)="passwordTouched = true" (ionBlur)="passwordTouched = true"></ion-input>
+              <ion-input type="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" name="password" (ionFocus)="onPasswordFocus()" (ionBlur)="passwordTouched = true"></ion-input>
             </ion-item>
             @if (passwordTouched && passwordError) { <p class="validation-error"><ion-icon name="alert-circle-outline"></ion-icon>{{ passwordError }}</p> }
           </div>

@@ -5,6 +5,7 @@ import { AuthAccessEligibility, AuthService } from '../core/services/auth.servic
 import { CountryService, Country } from '../core/services/country.service';
 import { ApiService } from '../core/services/api.service';
 import { CountrySelectorModalComponent } from '../country-selector-modal/country-selector-modal.component';
+import { SoftKeyboardService } from '../core/services/soft-keyboard.service';
 import { finalize } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -44,6 +45,7 @@ export class RegistrationComponent implements OnInit {
     private api: ApiService,
     private countryService: CountryService,
     private modalController: ModalController,
+    private softKeyboard: SoftKeyboardService,
     private router: Router
   ) {}
 
@@ -173,6 +175,14 @@ export class RegistrationComponent implements OnInit {
     this.phoneTouched = true;
     if (!this.isPhoneValid) return;
     await this.refreshEligibility(this.fullPhoneNumber);
+  }
+
+  onFieldFocus(field: 'phone' | 'password' | 'confirm' | 'email'): void {
+    if (field === 'phone') this.phoneTouched = true;
+    if (field === 'password') this.passwordTouched = true;
+    if (field === 'confirm') this.confirmTouched = true;
+    if (field === 'email') this.emailTouched = true;
+    void this.softKeyboard.showForFocusedInput();
   }
 
   async register() {
