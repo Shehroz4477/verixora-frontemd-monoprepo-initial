@@ -66,11 +66,12 @@ export class RegistrationComponent implements OnInit {
     if (!this.selectedCountry) return 'Please select a country';
 
     const country = this.selectedCountry;
+    const dialDigits = country.dial.replace(/\D/g, '');
     const digitsOnly = cleaned.replace(/[^+\d]/g, '');
     // Remove the dial code prefix if present
     let localDigits = digitsOnly;
-    if (localDigits.startsWith(country.dial)) {
-      localDigits = localDigits.substring(country.dial.length);
+    if (localDigits.startsWith(dialDigits)) {
+      localDigits = localDigits.substring(dialDigits.length);
     }
     // Remove leading zero if any
     localDigits = localDigits.replace(/^0+/, '');
@@ -137,9 +138,14 @@ export class RegistrationComponent implements OnInit {
 
   get fullPhoneNumber(): string {
     if (!this.selectedCountry) return this.phoneNumber;
-    const cleaned = this.phoneNumber.replace(/\s/g, '');
+    const cleaned = this.phoneNumber.replace(/[^+\d]/g, '');
     if (cleaned.startsWith('+')) return cleaned;
-    return this.selectedCountry.dial + cleaned;
+    const dialDigits = this.selectedCountry.dial.replace(/\D/g, '');
+    const digitsOnly = cleaned.replace(/\D/g, '');
+    const withoutRepeatedDialCode = digitsOnly.startsWith(dialDigits)
+      ? digitsOnly.substring(dialDigits.length)
+      : digitsOnly;
+    return this.selectedCountry.dial + withoutRepeatedDialCode.replace(/^0+/, '');
   }
 
   get canRegister(): boolean {

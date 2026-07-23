@@ -47,7 +47,12 @@ export class LoginComponent implements OnInit {
   get fullPhoneNumber(): string {
     const cleaned = this.phoneNumber.replace(/[^+\d]/g, '');
     if (cleaned.startsWith('+')) return cleaned;
-    return this.dialCode + cleaned;
+
+    const dialDigits = this.dialCode.replace(/\D/g, '');
+    const withoutRepeatedDialCode = cleaned.startsWith(dialDigits)
+      ? cleaned.substring(dialDigits.length)
+      : cleaned;
+    return this.dialCode + withoutRepeatedDialCode.replace(/^0+/, '');
   }
 
   get phoneError(): string {
