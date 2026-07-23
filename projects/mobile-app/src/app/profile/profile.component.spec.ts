@@ -5,7 +5,7 @@ import { ProfileComponent } from './profile.component';
 
 describe('ProfileComponent', () => {
   it('saves an email before sending and verifying the email OTP on the trusted device', async () => {
-    const api = jasmine.createSpyObj<ApiService>('ApiService', ['post', 'delete']);
+    const api = jasmine.createSpyObj<ApiService>('ApiService', ['get', 'post']);
     const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isMockMode', 'logout']);
     auth.isMockMode.and.returnValue(false);
     api.post.and.returnValues(
@@ -28,17 +28,19 @@ describe('ProfileComponent', () => {
     expect(component.message).toBe('Email verified.');
   });
 
-  it('deletes face enrollment only after the user confirms the privacy action', async () => {
-    const api = jasmine.createSpyObj<ApiService>('ApiService', ['post', 'delete']);
+  it('restores the verified email state after navigating back to the profile', async () => {
+    const api = jasmine.createSpyObj<ApiService>('ApiService', ['get', 'post']);
     const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isMockMode', 'logout']);
     auth.isMockMode.and.returnValue(false);
-    api.delete.and.returnValue(of({ status: 'deleted' }));
-    spyOn(window, 'confirm').and.returnValue(true);
+    api.get.and.returnValue(of({ email: 'owner@example.com', isVerified: true }));
     const component = new ProfileComponent(jasmine.createSpyObj('Router', ['navigate']), auth, api);
 
-    await component.deleteFaceEnrollment();
+    await (component as any).loadEmailStatus();
 
-    expect(api.delete).toHaveBeenCalledWith('/face/enrollment');
-    expect(component.message).toContain('Face enrollment deleted');
+    expect(api.get).toHaveBeenCalledWith('/auth/email-status');
+    expect(component.email).toBe('owner@example.com');
+    expect(component.emailSaved).toBeTrue();
+    expect(component.emailVerified).toBeTrue();
+    expect(component.isLoadingEmailStatus).toBeFalse();
   });
 });

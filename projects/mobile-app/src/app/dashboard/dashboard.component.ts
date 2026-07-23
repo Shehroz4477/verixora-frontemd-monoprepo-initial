@@ -48,6 +48,7 @@ export class DashboardComponent implements OnInit {
   doors: Door[] = [];
   greeting = '';
   isLoading = true;
+  isRefreshing = false;
   isCreatingHome = false;
   hasHomes = false;
   newHomeName = '';
@@ -57,6 +58,7 @@ export class DashboardComponent implements OnInit {
   actionState: 'idle' | 'loading' | 'success' | 'error' = 'idle';
   actionTitle = '';
   actionDescription = '';
+  private hasLoaded = false;
 
   constructor(
     private auth: AuthService,
@@ -72,7 +74,8 @@ export class DashboardComponent implements OnInit {
   }
 
   loadDoors(): void {
-    this.isLoading = true;
+    if (this.hasLoaded) this.isRefreshing = true;
+    else this.isLoading = true;
     this.errorMessage = '';
 
     if (this.auth.isMockMode()) {
@@ -82,7 +85,7 @@ export class DashboardComponent implements OnInit {
         { id: '2', name: 'Back Door', home: 'Main Home', controllerStatus: 'Online', lockStatus: 'Locked', requiresFace: false, lastActivity: '5 hours ago' },
         { id: '3', name: 'Office Door', home: 'Work', controllerStatus: 'Offline', lockStatus: 'Locked', requiresFace: false, lastActivity: '1 day ago' }
       ];
-      this.isLoading = false;
+      this.finishDoorLoad();
       return;
     }
 
@@ -102,12 +105,12 @@ export class DashboardComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.doors = data;
-        this.isLoading = false;
+        this.finishDoorLoad();
       },
       error: (err) => {
         console.error('Failed to load doors:', err);
         this.errorMessage = describeApiError(err, 'Could not load your doors. Refresh to try again.');
-        this.isLoading = false;
+        this.finishDoorLoad();
       }
     });
   }
@@ -260,5 +263,11 @@ export class DashboardComponent implements OnInit {
     this.actionState = 'error';
     this.actionTitle = title;
     this.actionDescription = description;
+  }
+
+  private finishDoorLoad(): void {
+    this.hasLoaded = true;
+    this.isLoading = false;
+    this.isRefreshing = false;
   }
 }

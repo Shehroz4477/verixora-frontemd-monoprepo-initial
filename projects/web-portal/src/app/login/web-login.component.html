@@ -1,27 +1,28 @@
 <main class="login-shell">
   <section class="login-card" aria-labelledby="portal-title">
-    <p class="eyebrow">VERIXORA CONTROL PORTAL</p>
-    <h1 id="portal-title">Secure monitoring</h1>
-    <p class="intro">Use the email verified from your trusted mobile device. Door unlock requests stay mobile-only.</p>
+    <div class="brand-row"><span class="brand-mark">V</span><div><p>VERIXORA</p><strong>Control portal</strong></div><span class="secure-chip"><i></i> VERIFIED ACCESS</span></div>
+    <p class="eyebrow">TRUSTED WEB SESSION</p>
+    <h1 id="portal-title">Security, with<br><em>context.</em></h1>
+    <p class="intro">Sign in only with an email verified from your registered Android device. Door control stays protected in the mobile app.</p>
 
     <form (ngSubmit)="otpRequested ? login() : requestOtp()" #form="ngForm" novalidate>
-      <label for="email">Verified email</label>
-      <input id="email" name="email" type="email" autocomplete="email" [(ngModel)]="email" required [disabled]="loading || otpRequested">
+      <label for="email">VERIFIED EMAIL</label>
+      <div class="field"><span>✉</span><input id="email" name="email" type="email" autocomplete="email" placeholder="owner@example.com" [(ngModel)]="email" required [disabled]="loading || otpRequested"></div>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" [(ngModel)]="password" required [disabled]="loading || otpRequested">
+      <label for="password">ACCOUNT PASSWORD</label>
+      <div class="field"><span>⌘</span><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" required [disabled]="loading || otpRequested"></div>
 
       @if (otpRequested) {
-        <label for="otp">Email OTP</label>
-        <input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" [(ngModel)]="otp" required [disabled]="loading">
+        <section class="otp-notice"><i></i><span>A six-digit code was sent to your verified email.</span></section>
+        <label for="otp">EMAIL VERIFICATION CODE</label>
+        <div class="field otp-field"><span>⌁</span><input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" [(ngModel)]="otp" required [disabled]="loading"></div>
       }
 
-      @if (error) {
-        <p class="error" role="alert">{{ error }}</p>
-      }
+      @if (error) { <p class="error" role="alert">{{ error }}</p> }
       <button type="submit" [disabled]="loading || !form.valid || (otpRequested && otp.length !== 6)">
-        {{ loading ? 'Please wait…' : (otpRequested ? 'Sign in securely' : 'Send email OTP') }}
+        @if (loading) { <span class="button-loader"></span> } {{ loading ? 'Protecting your session' : (otpRequested ? 'Open security command center' : 'Send email verification code') }}
       </button>
     </form>
+    <p class="security-note"><span>⌾</span> Web sessions are monitoring-only and time limited.</p>
   </section>
 </main>

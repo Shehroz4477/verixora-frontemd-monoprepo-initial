@@ -34,7 +34,9 @@ export class NotificationsComponent implements OnInit {
   readonly title = 'Security activity';
   activity: ActivityItem[] = [];
   isLoading = true;
+  isRefreshing = false;
   errorMessage = '';
+  private hasLoaded = false;
 
   constructor(
     private readonly router: Router,
@@ -51,7 +53,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   loadActivity(event?: CustomEvent): void {
-    this.isLoading = true;
+    if (this.hasLoaded) this.isRefreshing = true;
+    else this.isLoading = true;
     this.errorMessage = '';
 
     if (this.auth.isMockMode()) {
@@ -88,7 +91,9 @@ export class NotificationsComponent implements OnInit {
   }
 
   private finishRefresh(event?: CustomEvent): void {
+    this.hasLoaded = true;
     this.isLoading = false;
+    this.isRefreshing = false;
     const target = event?.target as { complete?: () => void } | undefined;
     target?.complete?.();
   }

@@ -1,233 +1,29 @@
-@use '../theme/variables' as *;
-@use '../theme/mixins' as *;
+:host { display: block; }
 
-.enrollment-content {
-  --background: rgba(#0B1120, 0.95);
-  backdrop-filter: blur(20px);
-}
+ion-toolbar { --background: transparent; --border-color: transparent; }
+.header-shield { color: #48f2c2; font-size: 20px; margin-right: 15px; }
+.enrollment-content { --padding-top: 4px; }
+.enrollment-container { margin: 0 auto; max-width: 560px; min-height: 100%; padding: 18px 20px calc(104px + env(safe-area-inset-bottom)); }
+.enrollment-hero { margin: 4px 1px 26px; }
+.enrollment-hero p,.capture-status > span,.success-state > p,.error-state > p { color: #2ed9ff; font-size: 10px; font-weight: 800; letter-spacing: .13em; margin: 0 0 8px; }
+.enrollment-hero h1 { color: #fff; font-size: 34px; letter-spacing: -.055em; line-height: .96; margin: 0 0 12px; }
+.enrollment-hero h1 em { color: #a995ff; font-style: normal; }
+.enrollment-hero > span { color: #9aa6bf; display: block; font-size: 14px; line-height: 1.55; max-width: 430px; }
 
-.enrollment-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: $space-6;
-  position: relative;
-}
+.scanner-area { background: linear-gradient(145deg, rgba(26, 39, 71, .86), rgba(9, 14, 29, .94)); border: 1px solid rgba(170, 191, 232, .15); border-radius: 28px; box-shadow: 0 25px 62px rgba(0, 0, 0, .26); padding: 22px 18px 18px; }
+.scanner-frame { background: radial-gradient(circle at 50% 43%, rgba(124, 92, 255, .19), rgba(10, 18, 38, .18) 55%, transparent 73%); border: 1px solid rgba(124, 92, 255, .28); border-radius: 28px; height: min(72vw, 294px); margin: 0 auto 18px; max-height: 294px; max-width: 294px; overflow: hidden; position: relative; width: min(72vw, 294px); }
+.scanner-frame.capturing { box-shadow: 0 0 0 6px rgba(46, 217, 255, .06), 0 0 40px rgba(46, 217, 255, .19); }
+.corner { border: 3px solid #a995ff; height: 34px; opacity: .9; position: absolute; width: 34px; }
+.top-left { border-bottom: 0; border-right: 0; border-radius: 13px 0 0; left: 14px; top: 14px; }.top-right { border-bottom: 0; border-left: 0; border-radius: 0 13px 0 0; right: 14px; top: 14px; }.bottom-left { border-right: 0; border-top: 0; border-radius: 0 0 0 13px; bottom: 14px; left: 14px; }.bottom-right { border-left: 0; border-top: 0; border-radius: 0 0 13px 0; bottom: 14px; right: 14px; }
+.face-silhouette { align-items: center; background: rgba(46, 217, 255, .08); border: 1px solid rgba(46, 217, 255, .16); border-radius: 50%; color: #72e8ff; display: flex; height: 96px; justify-content: center; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 96px; }.face-silhouette ion-icon { font-size: 50px; }
+.scan-line { animation: face-scan 2.6s ease-in-out infinite; background: linear-gradient(90deg, transparent, #2ed9ff, #b29dff, transparent); box-shadow: 0 0 19px rgba(46, 217, 255, .7); height: 2px; left: 13%; position: absolute; right: 13%; top: 20%; }
+.frame-index { background: rgba(4, 9, 23, .7); border: 1px solid rgba(170, 191, 232, .18); border-radius: 999px; color: #dce8ff; font-size: 11px; font-weight: 800; padding: 7px 10px; position: absolute; right: 13px; top: 13px; }
+.progress-track { background: rgba(170, 191, 232, .12); border-radius: 999px; height: 5px; overflow: hidden; }.progress-track i { background: linear-gradient(90deg, #7c5cff, #2ed9ff); border-radius: inherit; display: block; height: 100%; transition: width .35s ease; }
+.capture-status { margin: 19px 2px 17px; }.capture-status strong { color: #fff; display: block; font-size: 16px; letter-spacing: -.02em; line-height: 1.3; }.capture-status p { color: #8f9bb5; font-size: 13px; line-height: 1.45; margin: 8px 0 0; }
+.done-btn { --background: linear-gradient(110deg, #7c5cff, #2baeea); --box-shadow: 0 13px 28px rgba(73, 95, 237, .29); --color: #fff; margin: 0; }.done-btn ion-spinner { --color: #fff; height: 18px; margin-right: 8px; width: 18px; }
+.privacy-card { align-items: flex-start; background: rgba(72, 242, 194, .06); border: 1px solid rgba(72, 242, 194, .16); border-radius: 15px; color: #aedfce; display: flex; font-size: 12px; gap: 9px; line-height: 1.45; margin-top: 15px; padding: 12px; }.privacy-card ion-icon { color: #48f2c2; flex: 0 0 auto; font-size: 18px; }
 
-ion-toolbar {
-  --background: transparent;
-  --border-color: transparent;
-}
+.success-state,.error-state { background: linear-gradient(145deg, rgba(26, 39, 71, .86), rgba(9, 14, 29, .94)); border: 1px solid rgba(170, 191, 232, .15); border-radius: 28px; margin-top: 14vh; padding: 30px 22px 22px; text-align: center; }.success-ring,.error-orb { align-items: center; border-radius: 50%; display: flex; height: 86px; justify-content: center; margin: 0 auto 19px; width: 86px; }.success-ring { background: rgba(72, 242, 194, .11); border: 1px solid rgba(72, 242, 194, .38); color: #48f2c2; }.error-orb { background: rgba(255, 107, 136, .11); border: 1px solid rgba(255, 107, 136, .35); color: #ff9fb4; }.success-ring ion-icon,.error-orb ion-icon { font-size: 42px; }.success-state h2,.error-state h2 { color: #fff; font-size: 26px; letter-spacing: -.045em; margin: 0 0 11px; }.success-state > span,.error-state > span { color: #a8b4cb; display: block; font-size: 14px; line-height: 1.5; margin-bottom: 24px; }.error-state ul { color: #aab5ca; font-size: 13px; line-height: 1.65; margin: 0 0 22px; padding-left: 20px; text-align: left; }.cancel-link { background: transparent; border: 0; color: #a995ff; font: inherit; font-size: 13px; margin: 17px 0 0; padding: 5px; }
 
-// =============================================
-// SCANNER AREA
-// =============================================
-.scanner-area {
-  width: 100%;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.scanner-frame {
-  position: relative;
-  width: 280px;
-  height: 280px;
-  margin-bottom: $space-8;
-  border: 2px solid rgba($color-primary, 0.2);
-  border-radius: 24px;
-  background: rgba($color-primary, 0.03);
-  box-shadow: 0 0 60px rgba($color-primary, 0.08);
-
-  .corner {
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    border: 3px solid $color-primary;
-    opacity: 0.8;
-
-    &.top-left {
-      top: -2px;
-      left: -2px;
-      border-right: none;
-      border-bottom: none;
-      border-top-left-radius: 6px;
-    }
-    &.top-right {
-      top: -2px;
-      right: -2px;
-      border-left: none;
-      border-bottom: none;
-      border-top-right-radius: 6px;
-    }
-    &.bottom-left {
-      bottom: -2px;
-      left: -2px;
-      border-right: none;
-      border-top: none;
-      border-bottom-left-radius: 6px;
-    }
-    &.bottom-right {
-      bottom: -2px;
-      right: -2px;
-      border-left: none;
-      border-top: none;
-      border-bottom-right-radius: 6px;
-    }
-  }
-
-  .face-silhouette {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0.6;
-  }
-
-  .scan-line {
-    position: absolute;
-    left: 10%;
-    right: 10%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #7C5CFF, #2ED9FF, transparent);
-    top: 20%;
-    animation: scan-move 2.2s ease-in-out infinite;
-    box-shadow: 0 0 20px rgba(79, 106, 245, 0.4);
-    border-radius: 2px;
-  }
-}
-
-.status-area {
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-4;
-
-  .status-text {
-    font-size: $font-size-base;
-    color: $neutral-400;
-    font-weight: 500;
-    letter-spacing: 1px;
-  }
-
-  .capture-guidance {
-    color: $neutral-400;
-    font-size: $font-size-sm;
-    line-height: 1.5;
-    margin: 0;
-    text-align: center;
-  }
-
-  .done-btn {
-    --background: var(--vx-gradient-primary);
-    --border-radius: #{$radius-lg};
-    --box-shadow: 0 4px 16px rgba($color-primary, 0.3);
-    font-weight: $font-semibold;
-    margin-top: $space-2;
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 4px;
-    background: $neutral-700;
-    border-radius: $radius-full;
-    overflow: hidden;
-
-    .progress-fill {
-      height: 100%;
-      background: $gradient-primary;
-      border-radius: $radius-full;
-      transition: width 0.4s ease;
-      box-shadow: 0 0 12px rgba($color-primary, 0.3);
-    }
-  }
-}
-
-// =============================================
-// SUCCESS STATE
-// =============================================
-.success-state {
-  text-align: center;
-
-  .success-ring {
-    width: 100px;
-    height: 100px;
-    border-radius: $radius-full;
-    background: rgba($color-success, 0.15);
-    border: 2px solid $color-success;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto $space-6;
-    animation: success-pop 0.6s ease;
-
-    ion-icon {
-      font-size: 48px;
-      color: $color-success;
-    }
-  }
-
-  h2 {
-    font-size: $font-size-2xl;
-    font-weight: $font-bold;
-    color: $white;
-    margin: 0;
-  }
-  p {
-    font-size: $font-size-base;
-    color: $neutral-400;
-    margin: $space-2 0 $space-8;
-  }
-  .done-btn {
-    --background: var(--vx-gradient-primary);
-    --border-radius: #{$radius-lg};
-    --box-shadow: 0 4px 16px rgba($color-primary, 0.3);
-    height: 52px;
-    font-weight: $font-semibold;
-    padding: 0 $space-8;
-  }
-}
-
-// =============================================
-// ERROR STATE
-// =============================================
-.error-state {
-  text-align: center;
-
-  .error-icon {
-    font-size: 64px;
-    color: $color-danger;
-    margin-bottom: $space-4;
-  }
-  h2 {
-    color: $white;
-    font-weight: $font-bold;
-  }
-  p {
-    color: $neutral-400;
-    margin-bottom: $space-6;
-  }
-  .done-btn {
-    --background: var(--vx-gradient-primary);
-  }
-}
-
-// =============================================
-// ANIMATIONS
-// =============================================
-@keyframes scan-move {
-  0% { top: 15%; opacity: 0.5; }
-  50% { top: 80%; opacity: 1; }
-  100% { top: 15%; opacity: 0.5; }
-}
-
-@keyframes success-pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  60% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
+@keyframes face-scan { 0%,100% { opacity: .45; top: 19%; } 50% { opacity: 1; top: 79%; } }
+@media (prefers-reduced-motion: reduce) { .scan-line { animation: none; top: 50%; } }

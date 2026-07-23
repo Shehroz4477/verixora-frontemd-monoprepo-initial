@@ -29,7 +29,7 @@
     } @else {
       <section class="dashboard-heading">
         <div><p class="eyebrow">LIVE SECURITY OVERVIEW</p><h1>Good {{ greeting }}<span class="wave">⌁</span></h1><p>Your home is being watched over.</p></div>
-        <div class="network-chip"><i></i><span>{{ onlineCount }} LIVE</span></div>
+        <div class="network-chip"><i></i><span>{{ isRefreshing ? 'SYNCING' : onlineCount + ' LIVE' }}</span></div>
       </section>
       <section class="status-strip vx-stagger" aria-label="Security status">
         <article class="metric-card"><div class="metric-icon violet"><ion-icon name="grid-outline"></ion-icon></div><strong>{{ doors.length }}</strong><span>Doors connected</span></article>
@@ -42,7 +42,7 @@
           <article class="no-door-card"><div><ion-icon name="hardware-chip-outline"></ion-icon></div><h3>No controller connected</h3><p>Bring the ESP32 to its physical door and add it to your trusted network.</p><ion-button fill="clear" (click)="addDoor()">Set up controller <ion-icon slot="end" name="arrow-forward-outline"></ion-icon></ion-button></article>
         } @else {
           <div class="door-stack vx-stagger">
-            @for (door of doors; track door) {
+            @for (door of doors; track door.id) {
               <article class="door-card" [class.offline]="door.controllerStatus !== 'Online'" [class.action-active]="activeDoorId === door.id">
                 <div class="door-card-top"><div class="door-live"><i [class.online]="door.controllerStatus === 'Online'"></i><span>{{ door.controllerStatus === 'Online' ? 'CONTROLLER LIVE' : 'CONTROLLER OFFLINE' }}</span></div><button type="button" (click)="showDoorOptions(door)" aria-label="View door details"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
                 <div class="door-main"><div class="lock-orb" [class.unlocked]="door.lockStatus !== 'Locked' && door.lockStatus !== 'EmergencyLocked'"><ion-icon [name]="door.lockStatus === 'Locked' || door.lockStatus === 'EmergencyLocked' ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon></div><div class="door-copy"><h3>{{ door.name }}</h3><p><ion-icon name="location-outline"></ion-icon>{{ door.home }}</p><span><ion-icon name="time-outline"></ion-icon>{{ door.lastActivity }}</span></div></div>

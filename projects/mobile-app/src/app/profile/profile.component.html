@@ -1,10 +1,83 @@
-<ion-header class="ion-no-border"><ion-toolbar><ion-buttons slot="start"><ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard"><ion-icon name="arrow-back-outline"></ion-icon></ion-button></ion-buttons><ion-title>{{ title }}</ion-title></ion-toolbar></ion-header>
-<ion-content [fullscreen]="true" class="settings-content"><main class="settings-shell vx-page-enter">
-  <section class="settings-hero"><div class="profile-orb"><ion-icon name="shield-checkmark-outline"></ion-icon><i></i></div><div><p>TRUSTED DEVICE</p><h1>Your security<br><em>control center.</em></h1></div></section>
-  <p class="intro-copy">Manage the mobile identity that protects your doors and enable verified access to the web portal.</p>
-  @if (errorMessage) { <section class="settings-message error"><ion-icon name="alert-circle-outline"></ion-icon>{{ errorMessage }}</section> }
-  @if (message) { <section class="settings-message success"><ion-icon name="checkmark-circle-outline"></ion-icon>{{ message }}</section> }
-  <section class="settings-card web-card"><div class="card-heading"><div class="heading-icon"><ion-icon name="globe-outline"></ion-icon></div><div><p>WEB PORTAL ACCESS</p><h2>Verify your email</h2></div><span>01</span></div><p class="card-copy">Your web portal stays locked until this trusted phone verifies your email address.</p><div class="setting-field"><label>EMAIL ADDRESS</label><ion-item lines="none"><ion-icon slot="start" name="mail-outline"></ion-icon><ion-input type="email" inputmode="email" autocomplete="email" [(ngModel)]="email" (ionInput)="onEmailChanged()" placeholder="owner@example.com"></ion-input></ion-item></div><ion-button expand="block" class="primary-action" (click)="saveEmail()" [disabled]="isSavingEmail">@if (isSavingEmail) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Save email address</span><ion-icon slot="end" name="arrow-forward-outline"></ion-icon> }</ion-button><ion-button class="outline-action" fill="outline" expand="block" (click)="sendVerificationCode()" [disabled]="isSendingCode || !emailSaved">@if (isSendingCode) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Send verification code</span><ion-icon slot="end" name="send-outline"></ion-icon> }</ion-button><div class="setting-field compact"><label>EMAIL VERIFICATION CODE</label><ion-item lines="none"><ion-icon slot="start" name="keypad-outline"></ion-icon><ion-input [(ngModel)]="verificationCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter six-digit code"></ion-input></ion-item></div><ion-button class="verify-action" expand="block" (click)="verifyEmail()" [disabled]="isVerifying">@if (isVerifying) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Verify and enable web access</span><ion-icon slot="end" name="checkmark-outline"></ion-icon> }</ion-button></section>
-  <section class="settings-card biometric-card"><div class="card-heading"><div class="heading-icon face"><ion-icon name="scan-outline"></ion-icon></div><div><p>DOOR ACCESS RULE</p><h2>Face enrolment</h2></div><span>02</span></div><p class="card-copy">Face-required doors ask for a new camera capture before any unlock request is sent.</p><ion-button class="outline-action" fill="outline" expand="block" (click)="openFaceEnrollment()"><ion-icon slot="start" name="scan-outline"></ion-icon>Enroll or update face</ion-button><button type="button" class="danger-action" (click)="deleteFaceEnrollment()" [disabled]="isDeletingFace">@if (isDeletingFace) { <ion-spinner name="crescent"></ion-spinner> } @else { <ion-icon name="trash-outline"></ion-icon><span>Delete enrolled face data</span> }</button></section>
-  <button class="signout-action" type="button" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon>Sign out from this device</button>
-</main></ion-content>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" class="back-btn" aria-label="Back to dashboard">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ title }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="settings-content">
+  <main class="settings-shell vx-page-enter">
+    <section class="settings-hero">
+      <div class="profile-orb"><ion-icon name="shield-checkmark-outline"></ion-icon><i></i></div>
+      <div><p>TRUSTED DEVICE</p><h1>Your security<br><em>control center.</em></h1></div>
+    </section>
+
+    <p class="intro-copy">Manage the identity that protects your doors and control verified access to the web portal.</p>
+    @if (errorMessage) { <section class="settings-message error"><ion-icon name="alert-circle-outline"></ion-icon>{{ errorMessage }}</section> }
+    @if (message) { <section class="settings-message success"><ion-icon name="checkmark-circle-outline"></ion-icon>{{ message }}</section> }
+
+    <section class="settings-card web-card" [class.is-loading]="isLoadingEmailStatus">
+      <div class="card-heading">
+        <div class="heading-icon"><ion-icon name="globe-outline"></ion-icon></div>
+        <div><p>WEB PORTAL ACCESS</p><h2>Verified email</h2></div>
+        <span>01</span>
+      </div>
+      <p class="card-copy">Only an email confirmed on this registered phone can sign in to the web portal.</p>
+
+      @if (isLoadingEmailStatus) {
+        <div class="profile-loading"><ion-spinner name="crescent"></ion-spinner><span>Loading your verification status…</span></div>
+      } @else {
+        @if (emailVerified) {
+          <section class="verified-email-state">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <div><strong>Email verified</strong><span>{{ email }}</span></div>
+          </section>
+        }
+
+        <div class="setting-field">
+          <label>EMAIL ADDRESS</label>
+          <ion-item lines="none">
+            <ion-icon slot="start" name="mail-outline"></ion-icon>
+            <ion-input type="email" inputmode="email" autocomplete="email" [(ngModel)]="email" (ionInput)="onEmailChanged()" placeholder="owner@example.com"></ion-input>
+          </ion-item>
+        </div>
+        <ion-button expand="block" class="primary-action" (click)="saveEmail()" [disabled]="isSavingEmail">
+          @if (isSavingEmail) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>{{ emailVerified ? 'Update verified email' : 'Save email address' }}</span><ion-icon slot="end" name="arrow-forward-outline"></ion-icon> }
+        </ion-button>
+
+        @if (!emailVerified) {
+          <ion-button class="outline-action" fill="outline" expand="block" (click)="sendVerificationCode()" [disabled]="isSendingCode || !emailSaved">
+            @if (isSendingCode) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Send verification code</span><ion-icon slot="end" name="send-outline"></ion-icon> }
+          </ion-button>
+          <div class="setting-field compact">
+            <label>EMAIL VERIFICATION CODE</label>
+            <ion-item lines="none">
+              <ion-icon slot="start" name="keypad-outline"></ion-icon>
+              <ion-input [(ngModel)]="verificationCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter six-digit code"></ion-input>
+            </ion-item>
+          </div>
+          <ion-button class="verify-action" expand="block" (click)="verifyEmail()" [disabled]="isVerifying || !isVerificationCodeValid">
+            @if (isVerifying) { <ion-spinner name="crescent"></ion-spinner> } @else { <span>Verify and enable web access</span><ion-icon slot="end" name="checkmark-outline"></ion-icon> }
+          </ion-button>
+        }
+      }
+    </section>
+
+    <section class="settings-card biometric-card">
+      <div class="card-heading">
+        <div class="heading-icon face"><ion-icon name="scan-outline"></ion-icon></div>
+        <div><p>DOOR ACCESS RULE</p><h2>Face enrolment</h2></div>
+        <span>02</span>
+      </div>
+      <p class="card-copy">Face-required doors request a fresh camera capture before a secure unlock command is sent.</p>
+      <section class="enrollment-policy"><ion-icon name="shield-checkmark-outline"></ion-icon><span>Biometric enrollment can only be replaced after a new secure capture. It cannot be deleted from the app.</span></section>
+      <ion-button class="outline-action" fill="outline" expand="block" (click)="openFaceEnrollment()"><ion-icon slot="start" name="scan-outline"></ion-icon>Enroll or update face</ion-button>
+    </section>
+
+    <button class="signout-action" type="button" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon>Sign out from this device</button>
+  </main>
+</ion-content>
