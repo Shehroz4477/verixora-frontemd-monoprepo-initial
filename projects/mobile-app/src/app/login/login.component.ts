@@ -93,7 +93,11 @@ export class LoginComponent implements OnInit {
   }
 
   get needsPhoneNumber(): boolean {
-    return this.eligibility?.deviceStatus === 'Registered' && !this.phoneNumber;
+    // Keep the number field mounted while the user types.  The old condition
+    // switched the template to the blocked state as soon as the first digit
+    // updated ngModel, which destroyed the focused input and closed Android's
+    // keyboard before the user could press Continue.
+    return this.eligibility?.deviceStatus === 'Registered' && !this.canLogin;
   }
 
   get canLogin(): boolean {
