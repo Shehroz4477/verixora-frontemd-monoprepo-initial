@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthAccessEligibility, AuthService } from '../core/services/auth.service';
 import { CountryService } from '../core/services/country.service';
 import { StorageService } from '../core/services/storage.service';
 import { SoftKeyboardService } from '../core/services/soft-keyboard.service';
+import { describeApiError } from '../core/utils/api-error';
 import { finalize } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -31,17 +32,22 @@ export class LoginComponent implements OnInit {
     private countryService: CountryService,
     private storage: StorageService,
     private softKeyboard: SoftKeyboardService,
-    private router: Router
+    private router: Router,
+    private zone: NgZone
   ) {}
 
   async ngOnInit() {
     const countryCode = await this.countryService.getCountryCode();
-    this.dialCode = this.countryService.getDialCode(countryCode);
+    this.runInAngular(() => {
+      this.dialCode = this.countryService.getDialCode(countryCode);
+    });
 
     const registeredPhone = await this.storage.get<string>('registered_phone');
     if (registeredPhone) {
-      this.phoneNumber = registeredPhone;
-      this.isPhoneReadOnly = true;
+      this.runInAngular(() => {
+        this.phoneNumber = registeredPhone;
+        this.isPhoneReadOnly = true;
+      });
     }
     await this.refreshEligibility(registeredPhone || undefined);
   }
@@ -137,29 +143,41 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
-    this.showMessage('Sending OTP...', 'info');
+    this.runInAngular(() => {
+      this.isLoading = true;
+      this.showMessage('Sending OTP...', 'info');
+    });
 
-    const otpRequest = await this.auth.sendLoginOtp(this.fullPhoneNumber, this.password);
-    otpRequest
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe({
-        next: (response) => {
-          if (response?.phone) {
-            this.registerPhone(response.phone);
-          } else {
-            this.registerPhone(this.fullPhoneNumber);
+    try {
+      const otpRequest = await this.auth.sendLoginOtp(this.fullPhoneNumber, this.password);
+      otpRequest
+        .pipe(finalize(() => this.runInAngular(() => this.isLoading = false)))
+        .subscribe({
+          next: (response) => {
+            if (response?.phone) {
+              this.registerPhone(response.phone);
+            } else {
+              this.registerPhone(this.fullPhoneNumber);
+            }
+            this.runInAngular(() => {
+              this.showMessage('OTP sent successfully!', 'success');
+              this.router.navigate(['/otp'], {
+                state: { phone: this.fullPhoneNumber, password: this.password }
+              });
+            });
+          },
+          error: (err) => {
+            this.runInAngular(() => {
+              this.showMessage(describeApiError(err, 'Could not send a sign-in code. Please try again.'), 'error');
+            });
           }
-          this.showMessage('OTP sent successfully!', 'success');
-          this.router.navigate(['/otp'], {
-            state: { phone: this.fullPhoneNumber, password: this.password }
-          });
-        },
-        error: (err) => {
-          const errorMsg = err.error?.error || 'Failed to send OTP. Please try again.';
-          this.showMessage(errorMsg, 'error');
-        }
+        });
+    } catch (error) {
+      this.runInAngular(() => {
+        this.isLoading = false;
+        this.showMessage(describeApiError(error, 'Could not prepare a sign-in code. Please try again.'), 'error');
       });
+    }
   }
 
   goToRegister() {
@@ -168,11 +186,13 @@ export class LoginComponent implements OnInit {
 
   async useDifferentNumber(): Promise<void> {
     await this.storage.remove('registered_phone');
-    this.phoneNumber = '';
-    this.password = '';
-    this.isPhoneReadOnly = false;
-    this.phoneTouched = false;
-    this.passwordTouched = false;
+    this.runInAngular(() => {
+      this.phoneNumber = '';
+      this.password = '';
+      this.isPhoneReadOnly = false;
+      this.phoneTouched = false;
+      this.passwordTouched = false;
+    });
     await this.refreshEligibility();
   }
 
@@ -181,21 +201,30 @@ export class LoginComponent implements OnInit {
   }
 
   private async refreshEligibility(phoneNumber?: string): Promise<void> {
-    this.isCheckingEligibility = true;
+    this.runInAngular(() => this.isCheckingEligibility = true);
     try {
       const request = await this.auth.getAccessEligibility(phoneNumber);
-      this.eligibility = await firstValueFrom(request);
-      if (this.eligibility.canLogin && phoneNumber) {
+      const eligibility = await firstValueFrom(request);
+      this.runInAngular(() => {
+        this.eligibility = eligibility;
+      });
+      if (eligibility.canLogin && phoneNumber) {
         await this.registerPhone(phoneNumber);
-        this.isPhoneReadOnly = true;
+        this.runInAngular(() => this.isPhoneReadOnly = true);
       }
     } catch (error) {
       console.error('Unable to check login eligibility.', error);
-      this.eligibility = null;
-      this.showMessage('Unable to verify this device. Check your connection and try again.', 'error');
+      this.runInAngular(() => {
+        this.eligibility = null;
+        this.showMessage(describeApiError(error, 'Unable to verify this device. Check your connection and try again.'), 'error');
+      });
     } finally {
-      this.isCheckingEligibility = false;
+      this.runInAngular(() => this.isCheckingEligibility = false);
     }
+  }
+
+  private runInAngular(update: () => void): void {
+    this.zone.run(update);
   }
 
   private showMessage(text: string, type: 'info' | 'success' | 'error') {

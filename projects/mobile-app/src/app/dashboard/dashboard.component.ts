@@ -6,6 +6,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
 import { NearbyPresenceService } from '../core/services/nearby-presence.service';
+import { describeApiError } from '../core/utils/api-error';
 
 interface Door {
   id: string;
@@ -105,7 +106,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load doors:', err);
-        this.errorMessage = err.error?.error || 'Failed to load doors. Please try again.';
+        this.errorMessage = describeApiError(err, 'Could not load your doors. Refresh to try again.');
         this.isLoading = false;
       }
     });
@@ -126,7 +127,7 @@ export class DashboardComponent implements OnInit {
       this.hasHomes = true;
       this.loadDoors();
     } catch (err: any) {
-      this.errorMessage = err?.error?.error || 'Could not create the home. Please try again.';
+      this.errorMessage = describeApiError(err, 'Could not create the home. Please try again.');
     } finally {
       this.isCreatingHome = false;
     }
@@ -185,7 +186,7 @@ export class DashboardComponent implements OnInit {
       this.completeDoorAction('Presence proof sent', result.message || `Waiting for ${door.name} controller acknowledgement.`);
       this.loadDoors();
     } catch (err: any) {
-      this.failDoorAction('Unlock request rejected', err?.error?.error || err?.message || 'The nearby presence proof failed. The door remains locked.');
+      this.failDoorAction('Unlock request rejected', describeApiError(err, 'The nearby presence proof failed. The door remains locked.'));
     }
   }
 

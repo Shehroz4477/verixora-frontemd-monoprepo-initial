@@ -6,6 +6,7 @@ import { CountryService, Country } from '../core/services/country.service';
 import { ApiService } from '../core/services/api.service';
 import { CountrySelectorModalComponent } from '../country-selector-modal/country-selector-modal.component';
 import { SoftKeyboardService } from '../core/services/soft-keyboard.service';
+import { describeApiError } from '../core/utils/api-error';
 import { finalize } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -247,7 +248,7 @@ export class RegistrationComponent implements OnInit {
     } catch (error) {
       console.error('Unable to check registration eligibility.', error);
       this.eligibility = null;
-      this.showMessage('Unable to verify this device. Check your connection and try again.', 'error');
+      this.showMessage(describeApiError(error, 'Unable to verify this device. Check your connection and try again.'), 'error');
     } finally {
       this.isCheckingEligibility = false;
     }
@@ -259,14 +260,6 @@ export class RegistrationComponent implements OnInit {
   }
 
   private describeOtpError(error: any): string {
-    const serverMessage = error?.error?.error || error?.error?.title;
-    if (typeof serverMessage === 'string' && serverMessage.trim()) return serverMessage;
-
-    if (error?.status === 0) {
-      return `Network request did not reach the API: ${this.api.configuredBaseUrl}`;
-    }
-
-    const status = Number.isInteger(error?.status) ? `HTTP ${error.status}` : 'unknown error';
-    return `OTP request failed (${status}): ${error?.message || 'No error details returned.'}`;
+    return describeApiError(error, `The verification code could not be sent. Check that the API is running at ${this.api.configuredBaseUrl}.`);
   }
 }

@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
+import { describeApiError } from '../core/utils/api-error';
 import { StorageService } from '../core/services/storage.service';
 import { finalize } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-otp-page',
@@ -13,8 +15,10 @@ import { finalize } from 'rxjs/operators';
 export class OtpPageComponent implements OnInit, OnDestroy {
   timer: number = 0;
   isLoading: boolean = false;
+  isResending: boolean = false;
   errorMessage: string = '';
   otp: string = '';
+  readonly isDevelopmentBuild = !environment.production;
   private timerInterval: any;
 
   // State from navigation
@@ -31,13 +35,13 @@ export class OtpPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras?.state as {
+    const state = (navigation?.extras?.state ?? history.state) as {
       phone: string;
       password: string;
       email?: string;
       isRegistration?: boolean;
     };
-    if (state) {
+    if (state?.phone && state?.password) {
       this.phoneNumber = state.phone;
       this.password = state.password;
       this.email = state.email || '';
@@ -61,10 +65,12 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
-    if (this.isRegistration) {
-      // Registration flow
-      const registrationRequest = await this.auth.register(this.phoneNumber, this.password, this.otp, this.email);
-      registrationRequest
+    try {
+      const request = this.isRegistration
+        ? await this.auth.register(this.phoneNumber, this.password, this.otp, this.email)
+        : await this.auth.login(this.phoneNumber, this.password, this.otp);
+
+      request
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
@@ -72,43 +78,39 @@ export class OtpPageComponent implements OnInit, OnDestroy {
             this.router.navigate(['/tabs/home']);
           },
           error: (err) => {
-            this.errorMessage = err.error?.error || 'Registration failed. Please try again.';
+            this.errorMessage = describeApiError(err, this.isRegistration
+              ? 'Registration failed. Please try again.'
+              : 'The verification code is invalid or expired.');
           }
         });
-    } else {
-      // Login flow
-      const loginRequest = await this.auth.login(this.phoneNumber, this.password, this.otp);
-      loginRequest
-        .pipe(finalize(() => this.isLoading = false))
-        .subscribe({
-          next: () => {
-            this.storage.set('registered_phone', this.phoneNumber);
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            this.errorMessage = err.error?.error || 'Invalid OTP. Please try again.';
-          }
-        });
+    } catch (error) {
+      this.isLoading = false;
+      this.errorMessage = describeApiError(error, 'Could not verify this code. Check your connection and try again.');
     }
   }
 
   async resend() {
-    if (this.timer > 0) return;
+    if (this.timer > 0 || this.isResending) return;
 
     this.errorMessage = '';
-    // For registration or login, use appropriate OTP endpoint
-    const obs = this.isRegistration
-      ? await this.auth.sendRegistrationOtp(this.phoneNumber)
-      : await this.auth.sendLoginOtp(this.phoneNumber, this.password);
-    obs.subscribe({
-      next: () => {
-        this.startTimer(60);
-        this.otp = '';
-      },
-      error: (err) => {
-        this.errorMessage = err.error?.error || 'Failed to resend OTP.';
-      }
-    });
+    this.isResending = true;
+    try {
+      const request = this.isRegistration
+        ? await this.auth.sendRegistrationOtp(this.phoneNumber)
+        : await this.auth.sendLoginOtp(this.phoneNumber, this.password);
+      request.pipe(finalize(() => this.isResending = false)).subscribe({
+        next: () => {
+          this.startTimer(60);
+          this.otp = '';
+        },
+        error: (err) => {
+          this.errorMessage = describeApiError(err, 'Could not resend the verification code.');
+        }
+      });
+    } catch (error) {
+      this.isResending = false;
+      this.errorMessage = describeApiError(error, 'Could not resend the verification code.');
+    }
   }
 
   goBack() {

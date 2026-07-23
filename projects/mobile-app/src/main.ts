@@ -1,7 +1,6 @@
-import { provideZoneChangeDetection } from "@angular/core";
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { provideZoneChangeDetection } from '@angular/core';
 import { AppModule } from './app/app.module';
-import '@ionic/core';
 import { addIcons } from 'ionicons';
 import {
   // Bottom Navigation
@@ -80,5 +79,7 @@ addIcons({
 });
 
 platformBrowserDynamic()
-  .bootstrapModule(AppModule, { applicationProviders: [provideZoneChangeDetection()], })
+  .bootstrapModule(AppModule, {
+    applicationProviders: [provideZoneChangeDetection()]
+  })
   .catch(err => console.error(err));

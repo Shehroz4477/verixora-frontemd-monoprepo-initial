@@ -104,7 +104,12 @@
             },
             "assets": [
               "projects/mobile-app/src/favicon.ico",
-              "projects/mobile-app/src/assets"
+              "projects/mobile-app/src/assets",
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
+                "output": "svg"
+              }
             ],
             "styles": [
               "node_modules/@ionic/core/css/core.css",
@@ -165,7 +170,15 @@
             "stylePreprocessorOptions": {
               "includePaths": ["projects/mobile-app/src/theme"]
             },
-            "assets": ["projects/mobile-app/src/favicon.ico", "projects/mobile-app/src/assets"],
+            "assets": [
+              "projects/mobile-app/src/favicon.ico",
+              "projects/mobile-app/src/assets",
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
+                "output": "svg"
+              }
+            ],
             "styles": [
               "node_modules/@ionic/core/css/core.css",
               "node_modules/@ionic/core/css/normalize.css",

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
+import { describeApiError } from '../core/utils/api-error';
 
 @Component({
     selector: 'app-face-enrollment',
@@ -11,9 +12,10 @@ import { ApiService } from '../core/services/api.service';
     standalone: false
 })
 export class FaceEnrollmentComponent implements OnInit, OnDestroy {
-  statusMessage: string = 'Scanning face...';
+  statusMessage: string = 'Ready when you are.';
   progress: number = 0;
   isComplete: boolean = false;
+  isCapturing: boolean = false;
   error: string = '';
   private readonly requiredFrames = 3;
   private isActive = true;
@@ -24,10 +26,20 @@ export class FaceEnrollmentComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.startEnrollment();
+    // Camera access is a deliberate user action. Opening this screen must not
+    // immediately launch capture or make an unexpected biometric request.
+  }
+
+  beginEnrollment(): void {
+    if (this.isCapturing || !this.isActive) return;
+    this.error = '';
+    this.progress = 0;
+    this.statusMessage = 'Preparing secure camera capture…';
+    void this.startEnrollment();
   }
 
   private async startEnrollment() {
+    this.isCapturing = true;
     const photos: string[] = [];
     for (let index = 0; index < this.requiredFrames && this.isActive; index++) {
       this.statusMessage = `Capture ${index + 1} of ${this.requiredFrames}`;
@@ -43,7 +55,8 @@ export class FaceEnrollmentComponent implements OnInit, OnDestroy {
         });
       } catch (e) {
         // User cancelled – go back
-        this.goBack();
+        this.isCapturing = false;
+        this.error = 'Face enrollment was cancelled. No biometric data was saved.';
         return;
       }
 
@@ -53,6 +66,7 @@ export class FaceEnrollmentComponent implements OnInit, OnDestroy {
     }
 
     if (!this.isActive || photos.length !== this.requiredFrames) {
+      this.isCapturing = false;
       this.error = 'Three clear face captures are required.';
       return;
     }
@@ -64,8 +78,10 @@ export class FaceEnrollmentComponent implements OnInit, OnDestroy {
       this.isComplete = true;
       this.progress = 100;
       this.statusMessage = 'Face enrolled';
-    } catch (err: any) {
-      this.error = err?.error?.error || 'Enrollment failed. Please try again.';
+    } catch (error) {
+      this.error = describeApiError(error, 'Face enrollment could not be completed. No biometric data was saved.');
+    } finally {
+      this.isCapturing = false;
     }
   }
 
@@ -76,9 +92,9 @@ export class FaceEnrollmentComponent implements OnInit, OnDestroy {
   retry() {
     this.error = '';
     this.progress = 0;
-    this.statusMessage = 'Scanning face...';
+    this.statusMessage = 'Ready when you are.';
     this.isComplete = false;
-    this.startEnrollment();
+    this.beginEnrollment();
   }
 
   private base64toBlob(base64: string): Blob {

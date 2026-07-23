@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
+import { describeApiError } from '../core/utils/api-error';
 
 interface ActionResponse {
   success: boolean;
@@ -23,6 +24,7 @@ export class ProfileComponent {
   readonly title = 'Security settings';
   email = '';
   verificationCode = '';
+  emailSaved = false;
   isSavingEmail = false;
   isSendingCode = false;
   isVerifying = false;
@@ -40,6 +42,18 @@ export class ProfileComponent {
     this.router.navigate(['tabs/home']);
   }
 
+  get isEmailValid(): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim());
+  }
+
+  get isVerificationCodeValid(): boolean {
+    return /^\d{6}$/.test(this.verificationCode.trim());
+  }
+
+  onEmailChanged(): void {
+    this.emailSaved = false;
+  }
+
   async saveEmail(): Promise<void> {
     this.clearMessages();
     const email = this.email.trim();
@@ -47,8 +61,13 @@ export class ProfileComponent {
       this.errorMessage = 'Enter the email address you want to verify for web portal access.';
       return;
     }
+    if (!this.isEmailValid) {
+      this.errorMessage = 'Enter a complete email address, for example name@example.com.';
+      return;
+    }
     if (this.auth.isMockMode()) {
       this.email = email;
+      this.emailSaved = true;
       this.message = 'Mock email saved. Production requires an OTP verification before web portal access.';
       return;
     }
@@ -57,6 +76,7 @@ export class ProfileComponent {
     try {
       const result = await firstValueFrom(this.api.post<ActionResponse>('/auth/set-email', { email }));
       this.email = email;
+      this.emailSaved = true;
       this.message = result.message || 'Email saved. Send a verification code to continue.';
     } catch (error) {
       this.errorMessage = this.apiError(error, 'Could not save this email address.');
@@ -67,7 +87,7 @@ export class ProfileComponent {
 
   async sendVerificationCode(): Promise<void> {
     this.clearMessages();
-    if (!this.email.trim()) {
+    if (!this.emailSaved) {
       this.errorMessage = 'Save an email address before requesting a verification code.';
       return;
     }
@@ -90,8 +110,8 @@ export class ProfileComponent {
   async verifyEmail(): Promise<void> {
     this.clearMessages();
     const code = this.verificationCode.trim();
-    if (!code) {
-      this.errorMessage = 'Enter the verification code sent to your email.';
+    if (!this.isVerificationCodeValid) {
+      this.errorMessage = 'Enter the six-digit verification code sent to your email.';
       return;
     }
     if (this.auth.isMockMode()) {
@@ -149,7 +169,6 @@ export class ProfileComponent {
   }
 
   private apiError(error: unknown, fallback: string): string {
-    const candidate = error as { error?: { error?: string } };
-    return candidate?.error?.error || fallback;
+    return describeApiError(error, fallback);
   }
 }

@@ -115,6 +115,22 @@ ion-toolbar {
     letter-spacing: 1px;
   }
 
+  .capture-guidance {
+    color: $neutral-400;
+    font-size: $font-size-sm;
+    line-height: 1.5;
+    margin: 0;
+    text-align: center;
+  }
+
+  .done-btn {
+    --background: var(--vx-gradient-primary);
+    --border-radius: #{$radius-lg};
+    --box-shadow: 0 4px 16px rgba($color-primary, 0.3);
+    font-weight: $font-semibold;
+    margin-top: $space-2;
+  }
+
   .progress-bar {
     width: 100%;
     height: 4px;

@@ -29,6 +29,10 @@
         </div>
         <div class="status-area">
           <span class="status-text">{{ statusMessage }}</span>
+          @if (!isCapturing) {
+            <p class="capture-guidance">Capture three clear photos, one at a time. Your photos are sent only for enrollment and are not kept by the mobile app.</p>
+            <ion-button class="done-btn" (click)="beginEnrollment()">Start secure face enrollment</ion-button>
+          }
           <div class="progress-bar">
             <div class="progress-fill" [style.width.%]="progress"></div>
           </div>

@@ -4,6 +4,7 @@ import { forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
+import { describeApiError } from '../core/utils/api-error';
 
 interface HomeDto {
   id: string;
@@ -76,7 +77,7 @@ export class NotificationsComponent implements OnInit {
     ).subscribe({
       next: items => { this.activity = items; this.finishRefresh(event); },
       error: error => {
-        this.errorMessage = error?.error?.error || 'Could not load security activity.';
+        this.errorMessage = describeApiError(error, 'Could not load security activity.');
         this.finishRefresh(event);
       }
     });

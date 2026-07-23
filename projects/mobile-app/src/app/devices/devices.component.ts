@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
+import { describeApiError } from '../core/utils/api-error';
 
 interface HomeDto {
   id: string;
@@ -239,7 +240,6 @@ export class DevicesComponent implements OnInit {
   }
 
   private apiError(error: unknown, fallback: string): string {
-    const candidate = error as { error?: { error?: string } };
-    return candidate?.error?.error || fallback;
+    return describeApiError(error, fallback);
   }
 }
